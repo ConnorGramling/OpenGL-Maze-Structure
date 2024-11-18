@@ -24,16 +24,16 @@
 #include "myLib.h" // replace this with your library
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
+
+int num_vertices = 24;
+
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location;
 mat4 previous_ctm= {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 float previous_x;
 float previous_y;
 bool left_press = true;
-
-int num_vertices = 24;
-GLuint ctm_location;
-mat4 ctm = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 GLuint model_view_location;
 mat4 model_view = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 GLuint projection_location;
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
     glutInitWindowSize(512, 512);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
-    glutCreateWindow("Texture Template");
+    glutCreateWindow("Maze");
 #ifndef __APPLE__
     glewInit();
 #endif
