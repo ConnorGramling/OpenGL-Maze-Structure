@@ -21,7 +21,15 @@
 
 #include "initShader.h"
 
-#include "lib.h" // replace this with your library
+#include "myLib.h" // replace this with your library
+#include <math.h>
+#include <stdbool.h>
+mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint ctm_location;
+mat4 previous_ctm= {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+float previous_x;
+float previous_y;
+bool left_press = true;
 
 int num_vertices = 24;
 GLuint ctm_location;
@@ -74,7 +82,7 @@ void init(void) {
     fread(my_texels, tex_width * tex_height * 3, 1, fp);
     fclose(fp);
 
-    GLuint program = initShader("vshader_pmct.glsl", "fshader_t.glsl");
+    GLuint program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
 
     GLuint mytex[1];
@@ -134,18 +142,62 @@ void display(void) {
 
 void keyboard(unsigned char key, int mousex, int mousey) {
     if (key == 'q') {
-#ifndef __APPLE__
-        exit(0);
-#else
         glutLeaveMainLoop();
-#endif
     }
+}
+
+void mouse(int button, int state, int x, int y) {
+    
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        left_press = true;
+        previous_x=  (x * 2.0 / 511.0) - 1;;
+        previous_y= -((y * 2.0 / 511.0) -1);
+        
+    }
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+        left_press = false;
+        previous_ctm= ctm;
+    }
+    if (button == 3){
+        ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
+        previous_ctm= ctm;
+    }
+    if (button == 4){
+        ctm = mat_mult(scale(.98, .98, .98), previous_ctm);
+        previous_ctm= ctm;
+    }
+    
+    glutPostRedisplay();
+    
+}
+void motion(int x, int y) {
+    if (left_press == true){
+        float x_coord = (x * 2.0 / 511.0) - 1;
+        float y_coord = -((y * 2.0 / 511.0) -1);
+        if(sqrt((x_coord*x_coord)+ (y_coord*y_coord))<= 1 && sqrt((previous_x*previous_x)+ (previous_y*previous_y))<= 1){
+            float z_coord = (float) (1-(x_coord*x_coord)-(y_coord*y_coord));
+            vec4 axis2 = ((vec4){x_coord, y_coord,z_coord,0});
+            vec4 axis1 = ((vec4){previous_x, previous_y,(1-(previous_x*previous_x)-(previous_y*previous_y)),0});
+            vec4 axis = norm_v(cross_prod(axis1, axis2));
+            float d = (float) sqrt((axis.y*axis.y)+(axis.z*axis.z));
+            mat4 x_rotate_matrix = {{1, 0,0,0},{0,(axis.z/d),(axis.y/d),0},{0,(-axis.y/d), (axis.z/d),0},{0, 0, 0, 1}};
+            mat4 neg_y_rotate_matrix = {{d, 0,axis.x,0},{0,1,0,0},{-axis.x,0,d,0},{0, 0, 0, 1}};
+            float degree = (rad_to_deg(acos(dot_prod(axis1, axis2)/(mag_v(axis1) * mag_v(axis2)))));
+            
+            mat4 ctm2 =mat_mult(trans_mat(x_rotate_matrix), mat_mult(trans_mat(neg_y_rotate_matrix),mat_mult(rotate_z(degree), mat_mult(neg_y_rotate_matrix, x_rotate_matrix))));
+            ctm= mat_mult( ctm2, previous_ctm);
+            
+        }
+   }
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
     glutCreateWindow("Texture Template");
 #ifndef __APPLE__
     glewInit();
