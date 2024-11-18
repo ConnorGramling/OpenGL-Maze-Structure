@@ -1,10 +1,10 @@
 LIBS = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
 
-template: template.c initShader.o tempLib.o
-	gcc -o template template.c initShader.o tempLib.o $(LIBS)
+template: template.c initShader.o myLib.o
+	gcc -o template template.c initShader.o myLib.o $(LIBS)
 
 initShader.o: initShader.c initShader.h
 	gcc -c initShader.c
 
-tempLib.o: tempLib.h tempLib.c
-	gcc -c tempLib.c
+myLib.o: myLib.h myLib.c
+	gcc -c myLib.c
