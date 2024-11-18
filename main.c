@@ -20,29 +20,30 @@
 #endif  // __APPLE__
 
 #include "initShader.h"
-#include "initMaze.h"
+//#include "initMaze.h"
 
 #include "myLib.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-#define GRID_SIZE 12
-int num_vertices = GRID_SIZE * GRID_SIZE * 6;
+#define GRID_SIZE 1
+int num_vertices = 36;
 
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location;
 mat4 previous_ctm= {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+
 float previous_x;
 float previous_y;
 bool left_press = true;
+
 GLuint model_view_location;
 mat4 model_view = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 GLuint projection_location;
 mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
 void init(void) {
-    // Define cube vertices (each face has 2 triangles, so 6 vertices per face)
     vec4 positions[36] = {
         // Front face
         {-0.5, -0.5,  0.5, 1.0}, { 0.5,  0.5,  0.5, 1.0}, {-0.5,  0.5,  0.5, 1.0},
@@ -69,7 +70,6 @@ void init(void) {
         {-0.5, -0.5, -0.5, 1.0}, { 0.5, -0.5, -0.5, 1.0}, { 0.5, -0.5,  0.5, 1.0}
     };
 
-    // Texture coordinates for each vertex (using Texture 8 for all faces)
     vec2 tex_coords[36] = {
         // Front face
         {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
@@ -168,6 +168,7 @@ void keyboard(unsigned char key, int mousex, int mousey) {
     if (key == 'q') {
         glutLeaveMainLoop();
     }
+    glutPostRedisplay();
 }
 
 void mouse(int button, int state, int x, int y) {
@@ -176,7 +177,6 @@ void mouse(int button, int state, int x, int y) {
         left_press = true;
         previous_x=  (x * 2.0 / 511.0) - 1;;
         previous_y= -((y * 2.0 / 511.0) -1);
-        
     }
     if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         left_press = false;
@@ -220,8 +220,6 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
-    glutMouseFunc(mouse);
-    glutMotionFunc(motion);
     glutCreateWindow("Maze");
 #ifndef __APPLE__
     glewInit();
@@ -229,6 +227,8 @@ int main(int argc, char **argv) {
     init();
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
     glutMainLoop();
 
     return 0;
