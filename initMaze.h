@@ -14,8 +14,8 @@
 
 #define PLATFORM_SIZE 14
 extern int num_vertices;
-extern vec4 positions[36 * PLATFORM_SIZE * PLATFORM_SIZE];
-extern vec2 tex_coords[36 * PLATFORM_SIZE * PLATFORM_SIZE];
+extern vec4 *positions;
+extern vec2 *tex_coords;
 
 void initMaze();
 

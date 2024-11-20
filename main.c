@@ -78,9 +78,9 @@ void init(void) {
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(tex_coords), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positions), positions);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions), sizeof(tex_coords), tex_coords);
+    glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4) + num_vertices * sizeof(vec2), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
+    glBufferSubData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4), num_vertices * sizeof(vec2), tex_coords);
 
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
@@ -88,7 +88,7 @@ void init(void) {
 
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
-    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(sizeof(positions)));
+glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(num_vertices * sizeof(vec4)));
 
     ctm_location = glGetUniformLocation(program, "ctm");
     model_view_location = glGetUniformLocation(program, "model_view");
@@ -178,6 +178,9 @@ int main(int argc, char **argv) {
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutMainLoop();
+
+    free(positions);
+    free(tex_coords);
 
     return 0;
 }

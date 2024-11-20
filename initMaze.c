@@ -8,13 +8,12 @@
 #include "initMaze.h"
 #include "myLib.h"
 
-int num_vertices = 36 * PLATFORM_SIZE * PLATFORM_SIZE;
-vec4 positions[36 * PLATFORM_SIZE * PLATFORM_SIZE];
-vec2 tex_coords[36 * PLATFORM_SIZE * PLATFORM_SIZE];
+int num_vertices;
+vec4 *positions;
+vec2 *tex_coords;
 
 void initMaze()
 {
-  // Base cube positions and texture coordinates (unchanged from before)
   vec4 base_positions[36] = {
       // Front face
       {-0.5, -0.5, 0.5, 1.0},
@@ -64,48 +63,15 @@ void initMaze()
       {0.5, -0.5, -0.5, 1.0},
       {0.5, -0.5, 0.5, 1.0}};
 
-  vec2 base_tex_coords[36] = {
-      // Front face
-      {0.5, 1.0},   // Bottom-left
-      {0.75, 0.75}, // Top-right
-      {0.5, 0.75},  // Top-left
-      {0.5, 1.0},   // Bottom-left
-      {0.75, 1.0},  // Bottom-right
-      {0.75, 0.75}, // Top-right
-
-      // Back face
+  vec2 grass_top_tex_coords[6] = {
       {0.5, 1.0},
       {0.75, 0.75},
       {0.5, 0.75},
       {0.5, 1.0},
       {0.75, 1.0},
-      {0.75, 0.75},
+      {0.75, 0.75}};
 
-      // Left face - Grass Top
-      {0.5, 1.0},
-      {0.75, 0.75},
-      {0.5, 0.75},
-      {0.5, 1.0},
-      {0.75, 1.0},
-      {0.75, 0.75},
-
-      // Right face - Grass Top
-      {0.5, 1.0},
-      {0.75, 0.75},
-      {0.5, 0.75},
-      {0.5, 1.0},
-      {0.75, 1.0},
-      {0.75, 0.75},
-
-      // Top face - Grass
-      {0.0, 0.25},
-      {0.25, 0.0},
-      {0.0, 0.0},
-      {0.0, 0.25},
-      {0.25, 0.25},
-      {0.25, 0.0},
-
-      // Bottom face - Dirt
+  vec2 dirt_tex_coords[6] = {
       {0.75, 1.0},
       {1.0, 0.75},
       {0.75, 0.75},
@@ -113,28 +79,71 @@ void initMaze()
       {1.0, 1.0},
       {1.0, 0.75}};
 
-  int index = 0;
-  float half_size = PLATFORM_SIZE / 2.0f; // Centering adjustment
+  vec2 grass_tex_coords[6] = {
+      {0.0, 0.25},
+      {0.25, 0.0},
+      {0.0, 0.0},
+      {0.0, 0.25},
+      {0.25, 0.25},
+      {0.25, 0.0}};
 
-  // Generate 14x14 platform starting from the opposite side
-  for (int row = 0; row < PLATFORM_SIZE; row++)
+  int pyramid_base = PLATFORM_SIZE;
+  int pyramid_height = PLATFORM_SIZE / 2;
+
+  int pyramid_vertices = 0;
+  for (int i = 0; i < pyramid_height; ++i)
   {
-    for (int col = 0; col < PLATFORM_SIZE; col++)
-    {
-      float x_offset = col - half_size;
-      float z_offset = -(row - half_size); // Adjust to shift starting perspective
+    pyramid_vertices += 36 * (pyramid_base - 2 * i) * (pyramid_base - 2 * i);
+  }
+  num_vertices = pyramid_vertices;
 
-      // Copy the base cube positions and adjust for current row/col
-      for (int i = 0; i < 36; i++)
+  positions = (vec4 *)malloc(num_vertices * sizeof(vec4));
+  tex_coords = (vec2 *)malloc(num_vertices * sizeof(vec2));
+
+  if (positions == NULL || tex_coords == NULL)
+  {
+    fprintf(stderr, "Memory allocation failed!\n");
+    exit(1);
+  }
+
+  int index = 0;
+
+  for (int i = 0; i < pyramid_height; ++i)
+  {
+    int layer_size = pyramid_base - 2 * i;
+    for (int j = 0; j < layer_size; ++j)
+    {
+      for (int k = 0; k < layer_size; ++k)
       {
-        positions[index] = (vec4){
-            base_positions[i].x + x_offset,
-            base_positions[i].y,
-            base_positions[i].z + z_offset,
-            base_positions[i].w};
-        tex_coords[index] = base_tex_coords[i];
-        index++;
+        float x_offset = j - (layer_size - 1) / 2.0f;
+        float z_offset = -(k - (layer_size - 1) / 2.0f);
+        float y_offset = -i - 0.5;
+
+        for (int v = 0; v < 36; v++)
+        {
+          positions[index] = (vec4){
+              base_positions[v].x + x_offset,
+              base_positions[v].y + y_offset,
+              base_positions[v].z + z_offset,
+              base_positions[v].w};
+
+          if (i == 0)
+          {
+            if (v >= 30) // Bottom face of the top layer
+              tex_coords[index] = dirt_tex_coords[v % 6];
+            else if (v >= 24) // Top face of the top layer
+              tex_coords[index] = grass_tex_coords[v % 6];
+            else // Front, Back, Left, Right faces
+              tex_coords[index] = grass_top_tex_coords[v % 6];
+          }
+          else
+          {
+            tex_coords[index] = dirt_tex_coords[v % 6];
+          }
+          index++;
+        }
       }
     }
   }
+  num_vertices = index;
 }
