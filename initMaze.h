@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PLATFORM_SIZE 14
+#define PLATFORM_SIZE 32
 extern int num_vertices;
 extern vec4 *positions;
 extern vec2 *tex_coords;

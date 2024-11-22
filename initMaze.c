@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <time.h>
+
 /*
  * initMaze.c
  *
@@ -14,6 +17,8 @@ vec2 *tex_coords;
 
 void initMaze()
 {
+  srand(time(NULL)); // Seed for randomness
+
   vec4 base_positions[36] = {
       // Front face
       {-0.5, -0.5, 0.5, 1.0},
@@ -111,10 +116,21 @@ void initMaze()
   for (int i = 0; i < pyramid_height; ++i)
   {
     int layer_size = pyramid_base - 2 * i;
+
     for (int j = 0; j < layer_size; ++j)
     {
       for (int k = 0; k < layer_size; ++k)
       {
+        // Check if this is an exterior block
+        if (j == 0 || j == layer_size - 1 || k == 0 || k == layer_size - 1)
+        {
+          // Randomly decide whether to skip this block
+          if (rand() % 2 == 0)
+          {
+            continue; // Skip this block
+          }
+        }
+
         float x_offset = j - (layer_size - 1) / 2.0f;
         float z_offset = -(k - (layer_size - 1) / 2.0f);
         float y_offset = -i - 0.5;
@@ -145,5 +161,6 @@ void initMaze()
       }
     }
   }
+
   num_vertices = index;
 }
