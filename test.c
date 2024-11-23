@@ -3,7 +3,6 @@
  *
  *  Created on: November 11, 2024
  *      Author: Connor Gramling
-        Author: Alli Batell
  */
 
 
@@ -21,13 +20,16 @@
 #endif  // __APPLE__
 
 #include "initShader.h"
-#include "initMaze.h"
+//#include "initMaze.h"
 #include "perspFunc.h"
 
 #include "myLib.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#define GRID_SIZE 1
+int num_vertices = 36;
 
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location;
@@ -37,21 +39,67 @@ float previous_x;
 float previous_y;
 bool left_press = true;
 
-float zoom_left = -1, zoom_right = 1, zoom_top =1, zoom_bottom = -1, zoom_near = 1, zoom_far = -1;
-
 GLuint model_view_location;
 mat4 model_view = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 GLuint projection_location;
 mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
 void init(void) {
+
     
-    initMaze();
+    vec4 positions[36] = {
+        // Front face
+        {-0.5, -0.5,  0.5, 1.0}, { 0.5,  0.5,  0.5, 1.0}, {-0.5,  0.5,  0.5, 1.0},
+        {-0.5, -0.5,  0.5, 1.0}, { 0.5, -0.5,  0.5, 1.0}, { 0.5,  0.5,  0.5, 1.0},
+        
+        // Back face
+        { 0.5, -0.5, -0.5, 1.0}, {-0.5,  0.5, -0.5, 1.0}, { 0.5,  0.5, -0.5, 1.0},
+        { 0.5, -0.5, -0.5, 1.0}, {-0.5, -0.5, -0.5, 1.0}, {-0.5,  0.5, -0.5, 1.0},
+        
+        // Left face
+        {-0.5, -0.5, -0.5, 1.0}, {-0.5,  0.5,  0.5, 1.0}, {-0.5,  0.5, -0.5, 1.0},
+        {-0.5, -0.5, -0.5, 1.0}, {-0.5, -0.5,  0.5, 1.0}, {-0.5,  0.5,  0.5, 1.0},
+        
+        // Right face
+        { 0.5, -0.5,  0.5, 1.0}, { 0.5,  0.5, -0.5, 1.0}, { 0.5,  0.5,  0.5, 1.0},
+        { 0.5, -0.5,  0.5, 1.0}, { 0.5, -0.5, -0.5, 1.0}, { 0.5,  0.5, -0.5, 1.0},
+        
+        // Top face
+        {-0.5,  0.5,  0.5, 1.0}, { 0.5,  0.5, -0.5, 1.0}, {-0.5,  0.5, -0.5, 1.0},
+        {-0.5,  0.5,  0.5, 1.0}, { 0.5,  0.5,  0.5, 1.0}, { 0.5,  0.5, -0.5, 1.0},
+        
+        // Bottom face
+        {-0.5, -0.5, -0.5, 1.0}, { 0.5, -0.5,  0.5, 1.0}, {-0.5, -0.5,  0.5, 1.0},
+        {-0.5, -0.5, -0.5, 1.0}, { 0.5, -0.5, -0.5, 1.0}, { 0.5, -0.5,  0.5, 1.0}
+    };
 
-   // model_view = lookAt((vec4){0,0, 2,1}, (vec4){0,0,0,1},(vec4) {0,1,0,0});
+    vec2 tex_coords[36] = {
+        // Front face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25},
+        
+        // Back face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25},
+        
+        // Left face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25},
+        
+        // Right face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25},
+        
+        // Top face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25},
+        
+        // Bottom face
+        {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
+        {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25}
+    };
 
-    zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =- PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
-    projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+     projection = ortho(-2, 2, -2, 2, 2, -2);
 
     int tex_width = 64;
     int tex_height = 64;
@@ -87,9 +135,9 @@ void init(void) {
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4) + num_vertices * sizeof(vec2), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
-    glBufferSubData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4), num_vertices * sizeof(vec2), tex_coords);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(tex_coords), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positions), positions);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions), sizeof(tex_coords), tex_coords);
 
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
@@ -97,7 +145,7 @@ void init(void) {
 
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
-glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(num_vertices * sizeof(vec4)));
+    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(sizeof(positions)));
 
     ctm_location = glGetUniformLocation(program, "ctm");
     model_view_location = glGetUniformLocation(program, "model_view");
@@ -134,35 +182,12 @@ void mouse(int button, int state, int x, int y) {
         left_press = true;
         previous_x=  (x * 2.0 / 511.0) - 1;;
         previous_y= -((y * 2.0 / 511.0) -1);
-        previous_ctm= ctm;
     }
     if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         left_press = false;
         previous_ctm= ctm;
     }
-
-    // proper zoom function, not yet working 
-
-    // if (button == 3){
-    //     zoom_left = 1.02 *zoom_left;
-    //     zoom_right = 1.02 *zoom_right;
-    //     zoom_top = 1.02 *zoom_top;
-    //     zoom_bottom = 1.02 *zoom_bottom;
-    //     zoom_near = 1.02 *zoom_near;
-    //     zoom_far = 1.02 *zoom_far;
-    //     projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    // }
-    // if (button == 4){
-    //     zoom_left = 0.98 *zoom_left;
-    //     zoom_right = 0.98 *zoom_right;
-    //     zoom_top = 0.98 *zoom_top;
-    //     zoom_bottom = 0.98 *zoom_bottom;
-    //     zoom_near = 0.98 *zoom_near;
-    //     zoom_far = 0.98 *zoom_far;
-    //     projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    // } 
-    
-     if (button == 3){
+    if (button == 3){
         ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
         previous_ctm= ctm;
     }
@@ -210,9 +235,6 @@ int main(int argc, char **argv) {
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutMainLoop();
-
-    free(positions);
-    free(tex_coords);
 
     return 0;
 }
