@@ -98,8 +98,8 @@ void init(void) {
         {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
         {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25}
     };
-
-     projection = ortho(-2, 2, -2, 2, 2, -2);
+    model_view = lookAt((vec4){0,0,0, 1},(vec4){0,0,-1,1}, (vec4){0,1,0,0});
+    projection = frustrum(-1, 1, -1, 1, 1, -1);
 
     int tex_width = 64;
     int tex_height = 64;

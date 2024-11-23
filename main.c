@@ -48,10 +48,15 @@ void init(void) {
     
     initMaze();
 
-   // model_view = lookAt((vec4){0,0, 2,1}, (vec4){0,0,0,1},(vec4) {0,1,0,0});
+    model_view = lookAt((vec4){0,0, 0,1}, (vec4){0,0,-1,1},(vec4) {0,1,0,0});
 
-    zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =- PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
+    zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
     projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    
+
+    // model_view = lookAt((vec4){0,0, PLATFORM_SIZE/2,1}, (vec4){0,0,-1,1},(vec4) {0,1,0,0});
+    // zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = -PLATFORM_SIZE/2, zoom_far = -PLATFORM_SIZE/2;
+    // projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
 
     int tex_width = 64;
     int tex_height = 64;
