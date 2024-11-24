@@ -5,7 +5,6 @@
 * Any size maze - 20pts
 * Random maze - 5pts
 * Island match maze size - 5pts
-* Back to the original view - 15pts
 * Move to the entrance of the maze - 10pts
 * Move around the maze with keyboard - 20pts
 * Simple collision detection - 5pts
@@ -16,3 +15,4 @@
 * Turn on/off ambient, diffuse, and specular - 15pts
 * Have a flashlight - 10pts
 * Flashlight direction by mouse - 10pts
+* Frustrum zoom -5pts
