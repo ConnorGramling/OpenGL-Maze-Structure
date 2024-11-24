@@ -212,24 +212,24 @@ void mouse(int button, int state, int x, int y) {
 
     // proper zoom function, not yet working 
 
-    if (button == 3){
-        zoom_left = 1.02 *zoom_left;
-        zoom_right = 1.02 *zoom_right;
-        zoom_top = 1.02 *zoom_top;
-        zoom_bottom = 1.02 *zoom_bottom;
-        zoom_near = 1.02 *zoom_near;
-        zoom_far = 1.02 *zoom_far;
-        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    }
-    if (button == 4){
-        zoom_left = 0.98 *zoom_left;
-        zoom_right = 0.98 *zoom_right;
-        zoom_top = 0.98 *zoom_top;
-        zoom_bottom = 0.98 *zoom_bottom;
-        zoom_near = 0.98 *zoom_near;
-        zoom_far = 0.98 *zoom_far;
-        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    } 
+    // if (button == 3){
+    //     zoom_left = 1.02 *zoom_left;
+    //     zoom_right = 1.02 *zoom_right;
+    //     zoom_top = 1.02 *zoom_top;
+    //     zoom_bottom = 1.02 *zoom_bottom;
+    //     zoom_near = 1.02 *zoom_near;
+    //     zoom_far = 1.02 *zoom_far;
+    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    // }
+    // if (button == 4){
+    //     zoom_left = 0.98 *zoom_left;
+    //     zoom_right = 0.98 *zoom_right;
+    //     zoom_top = 0.98 *zoom_top;
+    //     zoom_bottom = 0.98 *zoom_bottom;
+    //     zoom_near = 0.98 *zoom_near;
+    //     zoom_far = 0.98 *zoom_far;
+    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    // } 
     
     //  if (button == 3){
     //     ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
