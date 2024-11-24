@@ -85,6 +85,7 @@ void init(void) {
     glGenVertexArraysAPPLE(1, &vao);
     glBindVertexArrayAPPLE(vao);
 #else
+
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 #endif
