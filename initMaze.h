@@ -14,6 +14,11 @@
 
 #define PLATFORM_SIZE 32
 
+#define MAZE_SIZE 4
+#define NUM_MAZE_POLES (MAZE_SIZE + 1) * (MAZE_SIZE + 1)
+#define WALL_LENGTH 3
+#define MAZE_WALL_HEIGHT 4
+
 void initMaze();
 
 #endif /* INITMAZE_H_ */

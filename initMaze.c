@@ -109,6 +109,9 @@ void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
 
+  int floor_size = (WALL_LENGTH*MAZE_SIZE) + MAZE_SIZE + 1;
+  int maze_vertices = 36 * ((floor_size*floor_size) + (MAZE_WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * 23))));
+
   int pyramid_base = PLATFORM_SIZE;
   int pyramid_height = PLATFORM_SIZE / 2;
 
@@ -117,7 +120,7 @@ void initMaze()
   {
     pyramid_vertices += 36 * (pyramid_base - 2 * i) * (pyramid_base - 2 * i);
   }
-  num_vertices = pyramid_vertices;
+  num_vertices = pyramid_vertices + maze_vertices;
 
   positions = (vec4 *)malloc(num_vertices * sizeof(vec4));
   tex_coords = (vec2 *)malloc(num_vertices * sizeof(vec2));
@@ -177,6 +180,34 @@ void initMaze()
         }
       }
     }
+  }
+
+  ////////////////////////////////
+  float yTemp = 0.5f;
+  float xTemp = -8.0f;
+  float zTemp = -8.0f;
+  
+  
+  for(int n = 0; n < 5; n++) {
+    for(int j = 0; j < 5; j++) {
+      for(int i = 0; i < 5; i++) {
+        for (int v = 0; v < 36; v++){
+          positions[index] = (vec4){
+              base_positions[v].x + xTemp,
+              base_positions[v].y + yTemp,
+              base_positions[v].z + zTemp,
+              base_positions[v].w};
+
+          tex_coords[index] = dirt_tex_coords[v % 6];
+          index++;
+        }
+        yTemp += 0.5f;
+      }
+    yTemp = 0.5f;
+    xTemp += 4.0f;
+    }
+    xTemp = -8.0f;
+    zTemp += 4.0f;
   }
 
   // Adding the sun block
