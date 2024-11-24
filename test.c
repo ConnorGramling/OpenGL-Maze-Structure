@@ -98,8 +98,9 @@ void init(void) {
         {0.0, 0.5}, {0.25, 0.25}, {0.0, 0.25},
         {0.0, 0.5}, {0.25, 0.5}, {0.25, 0.25}
     };
-    model_view = lookAt((vec4){0,0,0, 1},(vec4){0,0,-1,1}, (vec4){0,1,0,0});
-    projection = frustrum(-1, 1, -1, 1, 1, -1);
+
+    model_view = lookAt((vec4){0,0,1, 1},(vec4){0,0,-1,1}, (vec4){0,1,0,0});
+    projection = frustrum(-1, 1, -1, 1, -.25, -1.5);
 
     int tex_width = 64;
     int tex_height = 64;
@@ -223,7 +224,8 @@ void motion(int x, int y) {
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    //glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutCreateWindow("Maze");
 #ifndef __APPLE__

@@ -33,5 +33,6 @@ mat4 frustrum(float left, float right, float bottom, float top, float near, floa
     mat4 N = (mat4) {{1,0,0,0},{0,1,0,0},{0,0,((near +far)/(far-near)),-1},{0,0,(-(2*near*far)/(far-near)),0}};
     mat4 SH = mat_mult(S,H);
     //return SH;
+    print_mat4(mat_mult(N, SH));
     return mat_mult(N, SH);
 }

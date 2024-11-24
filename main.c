@@ -37,6 +37,29 @@ float previous_x;
 float previous_y;
 bool left_press = true;
 
+int quadrant= 1;
+
+vec4 eye, at, up;
+
+bool in_maze= false;
+
+typedef enum{
+    NONE = 0,
+    WALK_FORWARDS,
+    WALK_BACKWARDS,
+    WALK_LEFT,
+    WALK_RIGHT,
+    TURN_LEFT,
+    TURN_RIGHT
+ } state;
+
+state currentState = NONE;
+
+int current_step = 0;
+int max_steps;
+int isAnimating = 1;
+
+
 float zoom_left = -1, zoom_right = 1, zoom_top =1, zoom_bottom = -1, zoom_near = 1, zoom_far = -1;
 
 GLuint model_view_location;
@@ -47,15 +70,15 @@ mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 void init(void) {
     
     initMaze();
-
-    model_view = lookAt((vec4){0,0, 0,1}, (vec4){0,0,-1,1},(vec4) {0,1,0,0});
+    // eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
+    // model_view = lookAt(eye, at, up);
 
     zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
     projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
     
 
-    // model_view = lookAt((vec4){0,0, PLATFORM_SIZE/2,1}, (vec4){0,0,-1,1},(vec4) {0,1,0,0});
-    // zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = -PLATFORM_SIZE/2, zoom_far = -PLATFORM_SIZE/2;
+    // model_view = lookAt((vec4){0,0, PLATFORM_SIZE/2,1}, (vec4){0,0,PLATFORM_SIZE/2 -1,1},(vec4) {0,1,0,0});
+    // zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5;
     // projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
 
     int tex_width = 64;
@@ -127,7 +150,7 @@ void display(void) {
 }
 
 void keyboard(unsigned char key, int mousex, int mousey) {
-    if (key == 'q') {
+    if (key == 'l') {
         glutLeaveMainLoop();
     } else if (key == ',') { // Rotate left ('<')
         rotation_angle -= 45.0f;
@@ -136,6 +159,47 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         rotation_angle += 45.0f;
         rotateSun(45.0f);
     }
+    if (key == 'w'){
+        if (in_maze){
+            eye.z = eye.z +.25;
+            at.z = at.z +.25;
+            model_view = lookAt(eye, at, up);
+        }
+    }
+    if (key == 'a'){
+        if (in_maze){
+            eye.x = eye.x +.25;
+            at.x = at.x +.25;
+            model_view = lookAt(eye, at, up);
+        }
+    }
+    if (key == 's'){
+        if (in_maze){
+            eye.z = eye.z -.25;
+            at.z = at.z -.25;
+            model_view = lookAt(eye, at, up);
+        }
+    }
+    if (key == 'd'){
+        if (in_maze){
+            eye.x = eye.x -.25;
+            at.x = at.x -.25;
+            model_view = lookAt(eye, at, up);
+        }
+    }
+    if (key == 'q'){
+        if (in_maze){
+            mat4 rotate_mat = rotate_y(-1);
+            model_view = mat_mult(rotate_mat,model_view);
+        }
+    }
+    if (key == 'e'){
+       if (in_maze){
+            mat4 rotate_mat = rotate_y(1);
+            model_view = mat_mult(rotate_mat, model_view);
+       }
+    }
+
     glutPostRedisplay();
 }
 
@@ -161,7 +225,7 @@ void mouse(int button, int state, int x, int y) {
     //     zoom_bottom = 1.02 *zoom_bottom;
     //     zoom_near = 1.02 *zoom_near;
     //     zoom_far = 1.02 *zoom_far;
-    //     projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
     // }
     // if (button == 4){
     //     zoom_left = 0.98 *zoom_left;
@@ -170,17 +234,17 @@ void mouse(int button, int state, int x, int y) {
     //     zoom_bottom = 0.98 *zoom_bottom;
     //     zoom_near = 0.98 *zoom_near;
     //     zoom_far = 0.98 *zoom_far;
-    //     projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
     // } 
     
-     if (button == 3){
-        ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
-        previous_ctm= ctm;
-    }
-    if (button == 4){
-        ctm = mat_mult(scale(.98, .98, .98), previous_ctm);
-        previous_ctm= ctm;
-    }
+    //  if (button == 3){
+    //     ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
+    //     previous_ctm= ctm;
+    // }
+    // if (button == 4){
+    //     ctm = mat_mult(scale(.98, .98, .98), previous_ctm);
+    //     previous_ctm= ctm;
+    // }
     
     glutPostRedisplay();
     
@@ -207,9 +271,67 @@ void motion(int x, int y) {
     glutPostRedisplay();
 }
 
+void idle(void){
+    if(isAnimating){
+        if(currentState == NONE) {
+            
+        }
+        else if(currentState == WALK_FORWARDS) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+        else if(currentState == WALK_BACKWARDS) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+        else if(currentState == TURN_LEFT) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+        else if(currentState == TURN_RIGHT) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+        else if(currentState == WALK_LEFT) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+        else if(currentState == WALK_RIGHT) {
+            if(current_step == max_steps){
+                
+            }
+            else{
+            
+            }
+        }
+    glutPostRedisplay();
+    }
+}
+
+
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutCreateWindow("Maze");
 #ifndef __APPLE__
@@ -220,6 +342,7 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(keyboard);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
+    glutIdleFunc(idle);
     glutMainLoop();
 
     free(positions);
