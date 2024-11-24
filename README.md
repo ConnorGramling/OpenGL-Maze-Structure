@@ -15,4 +15,3 @@
 * Turn on/off ambient, diffuse, and specular - 15pts
 * Have a flashlight - 10pts
 * Flashlight direction by mouse - 10pts
-* Frustrum zoom -5pts
