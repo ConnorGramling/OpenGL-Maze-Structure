@@ -34,9 +34,9 @@ void rotateSun(float angle) {
             base_positions[v].w};
     }
 
-    // Re-upload the updated vertex positions to the GPU
+    /* // Re-upload the updated vertex positions to the GPU
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
-
+ */
     printf("Sun position updated: (%.2f, %.2f, %.2f)\n", sun_x, sun_y, sun_z);
 }
