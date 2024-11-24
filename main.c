@@ -42,6 +42,8 @@ float previous_x;
 float previous_y;
 bool left_press = true;
 
+vec4 light_position = {0, 20, 0, 0};
+
 int quadrant= 1;
 
 vec4 eye, at, up;
@@ -78,6 +80,52 @@ mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 void init(void) {
     
     initMaze();
+
+    //START SHADING
+    
+    // Ambient
+    vec4 *ambient_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
+
+    for(int i = 0; i < num_vertices; i++) {
+        ambient_colors[i] = scal_v_mult(0.3, colors[i]);
+    }
+    
+    // Diffuse
+    vec4 light_position = {4, 4, 4, 1};
+
+    vec4 *diffuse_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
+    
+    for(int i = 0; i < num_vertices; i++) {
+        vec4 l = norm_v(sub_vv(light_position, positions[i]));
+        vec4 n = normals[i];
+        float l_dot_n = dot_prod(l, n);
+        if(l_dot_n < 0)
+            l_dot_n = 0;
+        diffuse_colors[i] = scal_v_mult(l_dot_n, colors[i]);
+    }
+
+    // Specular
+    vec4 *specular_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
+
+    for(int i = 0; i < num_vertices; i++) {
+        vec4 l = norm_v(sub_vv(light_position, positions[i]));
+        vec4 v = norm_v(sub_vv(eye, positions[i]));
+        vec4 h = norm_v(add_vv(l, v));
+        vec4 n = normals[i];
+
+        float h_dot_n = dot_prod(h, n);
+        if(h_dot_n < 0)
+            h_dot_n = 0;
+
+        specular_colors[i] = scal_v_mult(pow(h_dot_n, 50), (vec4) {1, 1, 1, 1});
+    }
+    
+    for(int i = 0; i < num_vertices; i++) {
+        colors[i] = add_vv(specular_colors[i], add_vv(diffuse_colors[i], ambient_colors[i]));
+    }
+
+    // END SHADING
+
     eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
     model_view = lookAt(eye, at, up);
 
@@ -141,6 +189,11 @@ glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(num_vertic
 
     GLuint texture_location = glGetUniformLocation(program, "texture");
     glUniform1i(texture_location, 0);
+
+    //use texture?
+
+    GLuint light_position_location = glGetUniformLocation(program, "light_position");
+    glUniform4fv(light_position_location, 1, (GLvoid *) &light_position);
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);

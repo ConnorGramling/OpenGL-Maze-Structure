@@ -16,6 +16,8 @@
 int num_vertices;
 vec4 *positions;
 vec2 *tex_coords;
+vec4 *normals;
+vec4 *colors;
 
 float sun_x = 0.0f;
 float sun_y = 20.0f; // Positioned 20 units above the center of the island
@@ -121,8 +123,10 @@ void initMaze()
 
   positions = (vec4 *)malloc(num_vertices * sizeof(vec4));
   tex_coords = (vec2 *)malloc(num_vertices * sizeof(vec2));
+  normals = (vec4 *)malloc(num_vertices * sizeof(vec4));
+  colors = (vec4 *)malloc(num_vertices * sizeof(vec4));
 
-  if (positions == NULL || tex_coords == NULL)
+  if (positions == NULL || tex_coords == NULL || normals == NULL || colors == NULL)
   {
     fprintf(stderr, "Memory allocation failed!\n");
     exit(1);
@@ -154,12 +158,14 @@ void initMaze()
 
         for (int v = 0; v < 36; v++)
         {
+          // Set positions
           positions[index] = (vec4){
               base_positions[v].x + x_offset,
               base_positions[v].y + y_offset,
               base_positions[v].z + z_offset,
               base_positions[v].w};
 
+          // Set texture coordinates
           if (i == 0)
           {
             if (v >= 30) // Bottom face
@@ -173,6 +179,30 @@ void initMaze()
           {
             tex_coords[index] = dirt_tex_coords[v % 6];
           }
+
+          // Set normals (based on face direction)
+          vec4 normal = {0.0, 0.0, 0.0, 0.0};
+          if (v < 6)      // Front face
+            normal = (vec4){0.0, 0.0, 1.0, 0.0};
+          else if (v < 12) // Back face
+            normal = (vec4){0.0, 0.0, -1.0, 0.0};
+          else if (v < 18) // Left face
+            normal = (vec4){-1.0, 0.0, 0.0, 0.0};
+          else if (v < 24) // Right face
+            normal = (vec4){1.0, 0.0, 0.0, 0.0};
+          else if (v < 30) // Top face
+            normal = (vec4){0.0, 1.0, 0.0, 0.0};
+          else             // Bottom face
+            normal = (vec4){0.0, -1.0, 0.0, 0.0};
+          normals[index] = normal;
+
+          // Set colors (example gradient based on height)
+          colors[index] = (vec4){
+              (float)i / pyramid_height, // Red increases with height
+              1.0f - (float)i / pyramid_height, // Green decreases with height
+              (float)(rand() % 256) / 255.0f, // Random blue
+              1.0f};                          // Alpha is fully opaque
+
           index++;
         }
       }
@@ -189,6 +219,8 @@ void initMaze()
         base_positions[v].w};
 
     tex_coords[index] = sun_tex_coords[v % 6];
+    normals[index] = (vec4){0.0, 1.0, 0.0, 0.0}; // Normal pointing up for the sun
+    colors[index] = (vec4){1.0, 1.0, 0.0, 1.0}; // Yellow sun
     index++;
   }
 

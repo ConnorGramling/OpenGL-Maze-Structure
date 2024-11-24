@@ -21,6 +21,8 @@ extern GLuint buffer;
 extern int num_vertices;
 extern vec4 *positions;
 extern vec2 *tex_coords;
+extern vec4 *normals;
+extern vec4 *colors;
 
 extern vec4 base_positions[36];
 extern vec2 grass_top_tex_coords[6];
