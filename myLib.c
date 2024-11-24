@@ -237,11 +237,11 @@ mat4 rotate_z(float angle){
 }
 
 float deg_to_rad (float deg){
-    return (float)((deg * M_PI) /180);
+    return (float)((deg * M_PI) /180.0);
 }
 
 float rad_to_deg (double rad){
-    return (float)((rad*180)/M_PI);
+    return (float)((rad*180.0)/M_PI);
 }
 
 

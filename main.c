@@ -24,6 +24,7 @@
 #include "initMaze.h"
 #include "perspFunc.h"
 #include "sun.h"
+#include "flashlight.h"
 
 #include "main.h"
 #include "myLib.h"
@@ -54,16 +55,19 @@ typedef enum{
     WALK_LEFT,
     WALK_RIGHT,
     TURN_LEFT,
-    TURN_RIGHT
+    TURN_RIGHT,
+    RESET
  } state;
 
 state currentState = NONE;
 
 int current_step = 0;
 int max_steps;
-int isAnimating = 1;
+int isAnimating = -1;
 
+mat4 base_projection;
 
+vec4 eye, at, up;
 float zoom_left = -1, zoom_right = 1, zoom_top =1, zoom_bottom = -1, zoom_near = 1, zoom_far = -1;
 
 GLuint model_view_location;
@@ -74,12 +78,12 @@ mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 void init(void) {
     
     initMaze();
-    // eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
-    // model_view = lookAt(eye, at, up);
+    eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
+    model_view = lookAt(eye, at, up);
 
     zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
     projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    
+    base_projection= ortho( -PLATFORM_SIZE/2, PLATFORM_SIZE/2, -PLATFORM_SIZE/2, PLATFORM_SIZE/2, PLATFORM_SIZE, -PLATFORM_SIZE);
 
     // model_view = lookAt((vec4){0,0, PLATFORM_SIZE/2,1}, (vec4){0,0,PLATFORM_SIZE/2 -1,1},(vec4) {0,1,0,0});
     // zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5;
@@ -207,6 +211,12 @@ void keyboard(unsigned char key, int mousex, int mousey) {
             model_view = mat_mult(rotate_mat, model_view);
        }
     }
+    if (key == 'r'){
+        isAnimating =1;
+        currentState = RESET;
+        current_step =0;
+        max_steps = 300;
+    }
 
     glutPostRedisplay();
 }
@@ -217,7 +227,10 @@ void mouse(int button, int state, int x, int y) {
         left_press = true;
         previous_x=  (x * 2.0 / 511.0) - 1;;
         previous_y= -((y * 2.0 / 511.0) -1);
-        previous_ctm= ctm;
+        if (!in_maze)
+            previous_ctm= ctm;
+        if (in_maze)
+            new_direction(previous_x, previous_y);
     }
     if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         left_press = false;
@@ -226,24 +239,26 @@ void mouse(int button, int state, int x, int y) {
 
     // proper zoom function, not yet working 
 
-    // if (button == 3){
-    //     zoom_left = 1.02 *zoom_left;
-    //     zoom_right = 1.02 *zoom_right;
-    //     zoom_top = 1.02 *zoom_top;
-    //     zoom_bottom = 1.02 *zoom_bottom;
-    //     zoom_near = 1.02 *zoom_near;
-    //     zoom_far = 1.02 *zoom_far;
-    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    // }
-    // if (button == 4){
-    //     zoom_left = 0.98 *zoom_left;
-    //     zoom_right = 0.98 *zoom_right;
-    //     zoom_top = 0.98 *zoom_top;
-    //     zoom_bottom = 0.98 *zoom_bottom;
-    //     zoom_near = 0.98 *zoom_near;
-    //     zoom_far = 0.98 *zoom_far;
-    //     projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    // } 
+    if (button == 3){
+        zoom_left = 1.02 *zoom_left;
+        zoom_right = 1.02 *zoom_right;
+        zoom_top = 1.02 *zoom_top;
+        zoom_bottom = 1.02 *zoom_bottom;
+        zoom_near = 1.02 *zoom_near;
+        zoom_far = 1.02 *zoom_far;
+        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+        printf("after zoom:");
+        print_mat4(projection);
+    }
+    if (button == 4){
+        zoom_left = 0.98 *zoom_left;
+        zoom_right = 0.98 *zoom_right;
+        zoom_top = 0.98 *zoom_top;
+        zoom_bottom = 0.98 *zoom_bottom;
+        zoom_near = 0.98 *zoom_near;
+        zoom_far = 0.98 *zoom_far;
+        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    } 
     
     //  if (button == 3){
     //     ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
@@ -261,19 +276,23 @@ void motion(int x, int y) {
     if (left_press == true){
         float x_coord = (x * 2.0 / 511.0) - 1;
         float y_coord = -((y * 2.0 / 511.0) -1);
-        if(sqrt((x_coord*x_coord)+ (y_coord*y_coord))<= 1 && sqrt((previous_x*previous_x)+ (previous_y*previous_y))<= 1){
-            float z_coord = (float) (1-(x_coord*x_coord)-(y_coord*y_coord));
-            vec4 axis2 = ((vec4){x_coord, y_coord,z_coord,0});
-            vec4 axis1 = ((vec4){previous_x, previous_y,(1-(previous_x*previous_x)-(previous_y*previous_y)),0});
-            vec4 axis = norm_v(cross_prod(axis1, axis2));
-            float d = (float) sqrt((axis.y*axis.y)+(axis.z*axis.z));
-            mat4 x_rotate_matrix = {{1, 0,0,0},{0,(axis.z/d),(axis.y/d),0},{0,(-axis.y/d), (axis.z/d),0},{0, 0, 0, 1}};
-            mat4 neg_y_rotate_matrix = {{d, 0,axis.x,0},{0,1,0,0},{-axis.x,0,d,0},{0, 0, 0, 1}};
-            float degree = (rad_to_deg(acos(dot_prod(axis1, axis2)/(mag_v(axis1) * mag_v(axis2)))));
-            
-            mat4 ctm2 =mat_mult(trans_mat(x_rotate_matrix), mat_mult(trans_mat(neg_y_rotate_matrix),mat_mult(rotate_z(degree), mat_mult(neg_y_rotate_matrix, x_rotate_matrix))));
-            ctm= mat_mult( ctm2, previous_ctm);
-            
+        if (!in_maze)
+            if(sqrt((x_coord*x_coord)+ (y_coord*y_coord))<= 1 && sqrt((previous_x*previous_x)+ (previous_y*previous_y))<= 1){
+                float z_coord = (float) (1-(x_coord*x_coord)-(y_coord*y_coord));
+                vec4 axis2 = ((vec4){x_coord, y_coord,z_coord,0});
+                vec4 axis1 = ((vec4){previous_x, previous_y,(1-(previous_x*previous_x)-(previous_y*previous_y)),0});
+                vec4 axis = norm_v(cross_prod(axis1, axis2));
+                float d = (float) sqrt((axis.y*axis.y)+(axis.z*axis.z));
+                mat4 x_rotate_matrix = {{1, 0,0,0},{0,(axis.z/d),(axis.y/d),0},{0,(-axis.y/d), (axis.z/d),0},{0, 0, 0, 1}};
+                mat4 neg_y_rotate_matrix = {{d, 0,axis.x,0},{0,1,0,0},{-axis.x,0,d,0},{0, 0, 0, 1}};
+                float degree = (rad_to_deg(acos(dot_prod(axis1, axis2)/(mag_v(axis1) * mag_v(axis2)))));
+                
+                mat4 ctm2 =mat_mult(trans_mat(x_rotate_matrix), mat_mult(trans_mat(neg_y_rotate_matrix),mat_mult(rotate_z(degree), mat_mult(neg_y_rotate_matrix, x_rotate_matrix))));
+                ctm= mat_mult( ctm2, previous_ctm);
+                
+            }
+        if (in_maze){
+            new_direction(x_coord, y_coord);
         }
    }
     glutPostRedisplay();
@@ -281,9 +300,8 @@ void motion(int x, int y) {
 
 void idle(void){
     if(isAnimating){
-        if(currentState == NONE) {
+        if (currentState== NONE);
             
-        }
         else if(currentState == WALK_FORWARDS) {
             if(current_step == max_steps){
                 
@@ -330,6 +348,59 @@ void idle(void){
             }
             else{
             
+            }
+        }
+        else if(currentState == RESET) {
+            float alpha;
+            if(current_step == max_steps){
+                isAnimating = -1;
+                alpha = 1.0;
+                ctm = (mat4){{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+                previous_ctm=(mat4) {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+                projection = base_projection;
+                currentState= NONE;
+            }
+            else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
+                mat4 newctm;
+
+                //animate ctm
+                vec4 movex = sub_vv ((vec4){1,0,0,0},ctm.x);
+                movex =scal_v_mult(alpha,movex);
+                newctm.x = add_vv(ctm.x, movex);
+                vec4 movey = sub_vv ((vec4){0,1,0,0},ctm.y);
+                movey =scal_v_mult(alpha,movey);
+                newctm.y = add_vv(ctm.y, movey);
+                vec4 movez = sub_vv ((vec4){0,0,1,0},ctm.z);
+                movez =scal_v_mult(alpha,movez);
+                newctm.z = add_vv(ctm.z, movez);
+                vec4 movew = sub_vv ((vec4){0,0,0,1},ctm.w);
+                movew =scal_v_mult(alpha,movew);
+                newctm.w = add_vv(ctm.w, movew);
+                ctm=newctm;
+
+                //animate projection
+
+                if (current_step==0){
+                    print_mat4(base_projection);
+                    print_mat4(projection);
+                }
+                mat4 new_model;
+                movex = sub_vv (base_projection.x ,projection.x);
+                movex =scal_v_mult(alpha,movex);
+                new_model.x = add_vv(base_projection.x, movex);
+                movey = sub_vv (base_projection.y,projection.y);
+                movey =scal_v_mult(alpha,movey);
+                new_model.y = add_vv(base_projection.y, movey);
+                movez = sub_vv (base_projection.z,projection.z);
+                movez =scal_v_mult(alpha,movez);
+                new_model.z = add_vv(base_projection.z, movez);
+                movew = sub_vv (base_projection.w,projection.w);
+                movew =scal_v_mult(alpha,movew);
+                new_model.w = add_vv(base_projection.w, movew);
+                projection=new_model;
+                print_mat4(projection);
             }
         }
     glutPostRedisplay();
