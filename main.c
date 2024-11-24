@@ -31,6 +31,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+GLuint buffer;
+
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location;
 mat4 previous_ctm= {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
@@ -114,7 +116,7 @@ void init(void) {
     glBindVertexArray(vao);
 #endif
 
-    GLuint buffer;
+    //GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4) + num_vertices * sizeof(vec2), NULL, GL_STATIC_DRAW);
@@ -154,12 +156,16 @@ void display(void) {
 void keyboard(unsigned char key, int mousex, int mousey) {
     if (key == 'l') {
         glutLeaveMainLoop();
-    } else if (key == ',') { // Rotate left ('<')
+    } else if (key == ',') { // Rotate sun counterclockwise around X-axis
         rotation_angle -= 45.0f;
-        rotateSun(-45.0f);
-    } else if (key == '.') { // Rotate right ('>')
+        rotateSunX(-45.0f);
+    } else if (key == '.') { // Rotate sun clockwise around X-axis
         rotation_angle += 45.0f;
-        rotateSun(45.0f);
+        rotateSunX(45.0f);
+    } else if (key == ';') { // Rotate sun counterclockwise around Y-axis
+        rotateSunY(-45.0f);
+    } else if (key == '\'') { // Rotate sun clockwise around Y-axis
+        rotateSunY(45.0f);
     }
     if (key == 'w'){
         if (in_maze){

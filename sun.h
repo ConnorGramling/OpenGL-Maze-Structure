@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void rotateSun(float angle);
+void rotateSunX(float angle);
+void rotateSunY(float angle);
 
 #endif /* SUN_H_ */
