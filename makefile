@@ -1,7 +1,7 @@
 LIBS = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
 
-main: main.c initShader.o myLib.o initMaze.o perspFunc.o
-	gcc -o main main.c initShader.o myLib.o initMaze.o perspFunc.o $(LIBS)
+main: main.c initShader.o myLib.o initMaze.o sun.o perspFunc.o
+	gcc -o main main.c initShader.o myLib.o initMaze.o sun.o perspFunc.o $(LIBS)
 
 test: test.c initShader.o myLib.o  perspFunc.o
 	gcc -o test test.c initShader.o myLib.o  perspFunc.o $(LIBS)
@@ -14,6 +14,9 @@ myLib.o: myLib.h myLib.c
 
 initMaze.o: initMaze.c initMaze.h
 	gcc -c initMaze.c
+
+sun.o: sun.c sun.h
+	gcc -c sun.c
 	
 presp_func.o: perspFunc.c perspFunc.h
 	gcc -c perspFunc.c

@@ -9,16 +9,23 @@
  */
 
 #include "initMaze.h"
+#include "sun.h"
 #include "myLib.h"
 
 int num_vertices;
 vec4 *positions;
 vec2 *tex_coords;
 
+float sun_x = 0.0f;
+float sun_y = 20.0f; // Positioned 20 units above the center of the island
+float sun_z = 0.0f;
+float rotation_angle = 0.0f; // Current rotation angle in degrees
+
 void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
 
+  // Postion for block shape
   vec4 base_positions[36] = {
       // Front face
       {-0.5, -0.5, 0.5, 1.0},
@@ -68,6 +75,7 @@ void initMaze()
       {0.5, -0.5, -0.5, 1.0},
       {0.5, -0.5, 0.5, 1.0}};
 
+  // Textures
   vec2 grass_top_tex_coords[6] = {
       {0.5, 1.0},
       {0.75, 0.75},
@@ -91,6 +99,14 @@ void initMaze()
       {0.0, 0.25},
       {0.25, 0.25},
       {0.25, 0.0}};
+
+  vec2 sun_tex_coords[6] = {
+      {0.0, 0.75},
+      {0.25, 0.5},
+      {0.0, 0.5},
+      {0.0, 0.75},
+      {0.25, 0.75},
+      {0.25, 0.5}};
 
   int pyramid_base = PLATFORM_SIZE;
   int pyramid_height = PLATFORM_SIZE / 2;
@@ -145,9 +161,9 @@ void initMaze()
 
           if (i == 0)
           {
-            if (v >= 30) // Bottom face of the top layer
+            if (v >= 30) // Bottom face
               tex_coords[index] = dirt_tex_coords[v % 6];
-            else if (v >= 24) // Top face of the top layer
+            else if (v >= 24) // Top face
               tex_coords[index] = grass_tex_coords[v % 6];
             else // Front, Back, Left, Right faces
               tex_coords[index] = grass_top_tex_coords[v % 6];
@@ -160,6 +176,19 @@ void initMaze()
         }
       }
     }
+  }
+
+  // Adding the sun block
+  for (int v = 0; v < 36; v++)
+  {
+    positions[index] = (vec4){
+        base_positions[v].x + sun_x,
+        base_positions[v].y + sun_y,
+        base_positions[v].z + sun_z,
+        base_positions[v].w};
+
+    tex_coords[index] = sun_tex_coords[v % 6];
+    index++;
   }
 
   num_vertices = index;

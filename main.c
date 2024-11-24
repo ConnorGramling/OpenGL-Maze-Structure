@@ -85,7 +85,6 @@ void init(void) {
     glGenVertexArraysAPPLE(1, &vao);
     glBindVertexArrayAPPLE(vao);
 #else
-
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 #endif
@@ -130,6 +129,12 @@ void display(void) {
 void keyboard(unsigned char key, int mousex, int mousey) {
     if (key == 'q') {
         glutLeaveMainLoop();
+    } else if (key == ',') { // Rotate left ('<')
+        rotation_angle -= 45.0f;
+        rotateSun(-45.0f);
+    } else if (key == '.') { // Rotate right ('>')
+        rotation_angle += 45.0f;
+        rotateSun(45.0f);
     }
     glutPostRedisplay();
 }
