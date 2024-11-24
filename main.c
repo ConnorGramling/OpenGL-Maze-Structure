@@ -162,9 +162,9 @@ void keyboard(unsigned char key, int mousex, int mousey) {
     } else if (key == '.') { // Rotate sun clockwise around X-axis
         rotation_angle += 45.0f;
         rotateSunX(45.0f);
-    } else if (key == ';') { // Rotate sun counterclockwise around Y-axis
+    } else if (key == '\'') { // Rotate sun counterclockwise around Y-axis
         rotateSunY(-45.0f);
-    } else if (key == '\'') { // Rotate sun clockwise around Y-axis
+    } else if (key == ';') { // Rotate sun clockwise around Y-axis
         rotateSunY(45.0f);
     }
     if (key == 'w'){

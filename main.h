@@ -29,7 +29,7 @@ extern vec2 grass_tex_coords[6];
 extern vec2 sun_tex_coords[6];
 
 extern float sun_x;
-extern float sun_y; // Positioned 20 units above the center of the island
+extern float sun_y;
 extern float sun_z;
 extern float rotation_angle; // Current rotation angle in degrees
 
