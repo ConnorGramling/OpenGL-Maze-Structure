@@ -70,8 +70,8 @@ mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 void init(void) {
     
     initMaze();
-    eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
-    model_view = lookAt(eye, at, up);
+    // eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
+    // model_view = lookAt(eye, at, up);
 
     zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
     projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
