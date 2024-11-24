@@ -247,8 +247,6 @@ void mouse(int button, int state, int x, int y) {
         zoom_near = 1.02 *zoom_near;
         zoom_far = 1.02 *zoom_far;
         projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-        printf("after zoom:");
-        print_mat4(projection);
     }
     if (button == 4){
         zoom_left = 0.98 *zoom_left;
@@ -259,15 +257,6 @@ void mouse(int button, int state, int x, int y) {
         zoom_far = 0.98 *zoom_far;
         projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
     } 
-    
-    //  if (button == 3){
-    //     ctm = mat_mult( scale(1.02, 1.02, 1.02), previous_ctm);
-    //     previous_ctm= ctm;
-    // }
-    // if (button == 4){
-    //     ctm = mat_mult(scale(.98, .98, .98), previous_ctm);
-    //     previous_ctm= ctm;
-    // }
     
     glutPostRedisplay();
     
@@ -364,43 +353,45 @@ void idle(void){
                 alpha = (float) current_step/ max_steps;
                 current_step++;
                 mat4 newctm;
+                vec4 movex, movey, movez, movew;
+
+
+                //animate projection
+
+                mat4 new_model;
+                movex = sub_vv (base_projection.x ,projection.x);
+                movex =scal_v_mult(alpha,movex);
+                new_model.x = add_vv(projection.x, movex);
+                movey = sub_vv (base_projection.y,projection.y);
+                movey =scal_v_mult(alpha,movey);
+                new_model.y = add_vv(projection.y, movey);
+                movez = sub_vv (base_projection.z,projection.z);
+                movez =scal_v_mult(alpha,movez);
+                new_model.z = add_vv(projection.z, movez);
+                movew = sub_vv (base_projection.w,projection.w);
+                movew =scal_v_mult(alpha,movew);
+                new_model.w = add_vv(projection.w, movew);
+                projection=new_model;
+                
+                
 
                 //animate ctm
-                vec4 movex = sub_vv ((vec4){1,0,0,0},ctm.x);
+                movex = sub_vv ((vec4){1,0,0,0},ctm.x);
                 movex =scal_v_mult(alpha,movex);
                 newctm.x = add_vv(ctm.x, movex);
-                vec4 movey = sub_vv ((vec4){0,1,0,0},ctm.y);
+                movey = sub_vv ((vec4){0,1,0,0},ctm.y);
                 movey =scal_v_mult(alpha,movey);
                 newctm.y = add_vv(ctm.y, movey);
-                vec4 movez = sub_vv ((vec4){0,0,1,0},ctm.z);
+                movez = sub_vv ((vec4){0,0,1,0},ctm.z);
                 movez =scal_v_mult(alpha,movez);
                 newctm.z = add_vv(ctm.z, movez);
-                vec4 movew = sub_vv ((vec4){0,0,0,1},ctm.w);
+                movew = sub_vv ((vec4){0,0,0,1},ctm.w);
                 movew =scal_v_mult(alpha,movew);
                 newctm.w = add_vv(ctm.w, movew);
                 ctm=newctm;
 
-                //animate projection
 
-                if (current_step==0){
-                    print_mat4(base_projection);
-                    print_mat4(projection);
-                }
-                mat4 new_model;
-                movex = sub_vv (base_projection.x ,projection.x);
-                movex =scal_v_mult(alpha,movex);
-                new_model.x = add_vv(base_projection.x, movex);
-                movey = sub_vv (base_projection.y,projection.y);
-                movey =scal_v_mult(alpha,movey);
-                new_model.y = add_vv(base_projection.y, movey);
-                movez = sub_vv (base_projection.z,projection.z);
-                movez =scal_v_mult(alpha,movez);
-                new_model.z = add_vv(base_projection.z, movez);
-                movew = sub_vv (base_projection.w,projection.w);
-                movew =scal_v_mult(alpha,movew);
-                new_model.w = add_vv(base_projection.w, movew);
-                projection=new_model;
-                print_mat4(projection);
+
             }
         }
     glutPostRedisplay();
