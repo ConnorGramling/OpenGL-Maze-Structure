@@ -30,6 +30,11 @@ extern vec2 dirt_tex_coords[6];
 extern vec2 grass_tex_coords[6];
 extern vec2 sun_tex_coords[6];
 
+extern vec4 ambient_colors[];
+extern vec4 diffuse_colors[];
+extern vec4 specular_colors[];
+
+
 extern float sun_x;
 extern float sun_y;
 extern float sun_z;

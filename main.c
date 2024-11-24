@@ -48,7 +48,7 @@ int quadrant= 1;
 
 vec4 eye, at, up;
 
-bool in_maze= false;
+bool in_maze= true;
 
 typedef enum{
     NONE = 0,
@@ -126,15 +126,13 @@ void init(void) {
 
     // END SHADING
 
-    eye = (vec4) {0,0, PLATFORM_SIZE/2,1}, at = (vec4) {0,0,PLATFORM_SIZE/2-1,1}, up =(vec4) {0,1,0,0};
-    model_view = lookAt(eye, at, up);
+    
 
-    zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = PLATFORM_SIZE, zoom_far = -PLATFORM_SIZE;
-    projection = ortho(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    base_projection= ortho( -PLATFORM_SIZE/2, PLATFORM_SIZE/2, -PLATFORM_SIZE/2, PLATFORM_SIZE/2, PLATFORM_SIZE, -PLATFORM_SIZE);
-
-    // model_view = lookAt((vec4){0,0, PLATFORM_SIZE/2,1}, (vec4){0,0,PLATFORM_SIZE/2 -1,1},(vec4) {0,1,0,0});
-    // zoom_left = -PLATFORM_SIZE/2, zoom_right = PLATFORM_SIZE/2, zoom_top =PLATFORM_SIZE/2, zoom_bottom =-PLATFORM_SIZE/2, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5;
+    model_view = lookAt((vec4){0,0, PLATFORM_SIZE,1}, (vec4){0,0,PLATFORM_SIZE+1,1},(vec4) {0,1,0,0});
+    zoom_left = -PLATFORM_SIZE/3, zoom_right = PLATFORM_SIZE/3, zoom_top =PLATFORM_SIZE/4, zoom_bottom =-PLATFORM_SIZE/4, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5 ;
+    projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    base_projection= projection;
+    // zoom_left = -1, zoom_right = 1, zoom_top =1, zoom_bottom =-1, zoom_near = -1, zoom_far = -1 *1.5;
     // projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
 
     int tex_width = 64;
@@ -226,41 +224,37 @@ void keyboard(unsigned char key, int mousex, int mousey) {
     }
     if (key == 'w'){
         if (in_maze){
-            eye.z = eye.z +.25;
-            at.z = at.z +.25;
-            model_view = lookAt(eye, at, up);
+            model_view = mat_mult(translate(0,0,1),model_view);
+            
+            // eye.z = eye.z +.25;
+            // at.z = at.z +.25;
+            // model_view = lookAt(eye, at, up);
         }
     }
     if (key == 'a'){
         if (in_maze){
-            eye.x = eye.x +.25;
-            at.x = at.x +.25;
-            model_view = lookAt(eye, at, up);
+            model_view = mat_mult(translate(1,0,0),model_view);
         }
     }
     if (key == 's'){
         if (in_maze){
-            eye.z = eye.z -.25;
-            at.z = at.z -.25;
-            model_view = lookAt(eye, at, up);
+            model_view = mat_mult(translate(0,0,-1),model_view);
         }
     }
     if (key == 'd'){
         if (in_maze){
-            eye.x = eye.x -.25;
-            at.x = at.x -.25;
-            model_view = lookAt(eye, at, up);
+            model_view = mat_mult(translate(-1,0,0),model_view);
         }
     }
     if (key == 'q'){
         if (in_maze){
-            mat4 rotate_mat = rotate_y(-1);
+            mat4 rotate_mat = rotate_y(1);
             model_view = mat_mult(rotate_mat,model_view);
         }
     }
     if (key == 'e'){
        if (in_maze){
-            mat4 rotate_mat = rotate_y(1);
+            mat4 rotate_mat = rotate_y(-1);
             model_view = mat_mult(rotate_mat, model_view);
        }
     }
@@ -268,7 +262,7 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         isAnimating =1;
         currentState = RESET;
         current_step =0;
-        max_steps = 300;
+        max_steps = 500;
     }
 
     glutPostRedisplay();
@@ -279,7 +273,7 @@ void mouse(int button, int state, int x, int y) {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         left_press = true;
         previous_x=  (x * 2.0 / 511.0) - 1;;
-        previous_y= -((y * 2.0 / 511.0) -1);
+        previous_y= ((y * 2.0 / 511.0) -1);
         if (!in_maze)
             previous_ctm= ctm;
         if (in_maze)
@@ -290,25 +284,25 @@ void mouse(int button, int state, int x, int y) {
         previous_ctm= ctm;
     }
 
-    // proper zoom function, not yet working 
+    // proper zoom function not yet working 
 
     if (button == 3){
+        zoom_left = .98 *zoom_left;
+        zoom_right = .98 *zoom_right;
+        zoom_top = .98 *zoom_top;
+        zoom_bottom = .98 *zoom_bottom;
+        zoom_near = 1.00 *zoom_near;
+        zoom_far = 1.00 *zoom_far;
+        projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+    }
+    if (button == 4){
         zoom_left = 1.02 *zoom_left;
         zoom_right = 1.02 *zoom_right;
         zoom_top = 1.02 *zoom_top;
         zoom_bottom = 1.02 *zoom_bottom;
-        zoom_near = 1.02 *zoom_near;
+        zoom_near = .98 *zoom_near;
         zoom_far = 1.02 *zoom_far;
-        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    }
-    if (button == 4){
-        zoom_left = 0.98 *zoom_left;
-        zoom_right = 0.98 *zoom_right;
-        zoom_top = 0.98 *zoom_top;
-        zoom_bottom = 0.98 *zoom_bottom;
-        zoom_near = 0.98 *zoom_near;
-        zoom_far = 0.98 *zoom_far;
-        projection = ortho(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
+        projection = frustrum(zoom_left,zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
     } 
     
     glutPostRedisplay();
@@ -317,8 +311,8 @@ void mouse(int button, int state, int x, int y) {
 void motion(int x, int y) {
     if (left_press == true){
         float x_coord = (x * 2.0 / 511.0) - 1;
-        float y_coord = -((y * 2.0 / 511.0) -1);
-        if (!in_maze)
+        float y_coord = ((y * 2.0 / 511.0) -1);
+        //if (!in_maze){
             if(sqrt((x_coord*x_coord)+ (y_coord*y_coord))<= 1 && sqrt((previous_x*previous_x)+ (previous_y*previous_y))<= 1){
                 float z_coord = (float) (1-(x_coord*x_coord)-(y_coord*y_coord));
                 vec4 axis2 = ((vec4){x_coord, y_coord,z_coord,0});
@@ -333,6 +327,7 @@ void motion(int x, int y) {
                 ctm= mat_mult( ctm2, previous_ctm);
                 
             }
+        //}
         if (in_maze){
             new_direction(x_coord, y_coord);
         }
@@ -424,10 +419,8 @@ void idle(void){
                 movew = sub_vv (base_projection.w,projection.w);
                 movew =scal_v_mult(alpha,movew);
                 new_model.w = add_vv(projection.w, movew);
-                projection=new_model;
+                projection=new_model;            
                 
-                
-
                 //animate ctm
                 movex = sub_vv ((vec4){1,0,0,0},ctm.x);
                 movex =scal_v_mult(alpha,movex);
@@ -442,8 +435,6 @@ void idle(void){
                 movew =scal_v_mult(alpha,movew);
                 newctm.w = add_vv(ctm.w, movew);
                 ctm=newctm;
-
-
 
             }
         }
