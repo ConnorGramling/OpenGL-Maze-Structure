@@ -110,9 +110,8 @@ vec2 sun_tex_coords[6] = {
 void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
-
-  int floor_size = (WALL_LENGTH*MAZE_SIZE) + MAZE_SIZE + 1;
-  int maze_vertices = 36 * ((floor_size*floor_size) + (MAZE_WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * 23))));
+  int tempNum = 23;
+  int maze_vertices = 36 * ((FLOOR_SIZE * FLOOR_SIZE) + (MAZE_WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * tempNum))));
 
   int pyramid_base = PLATFORM_SIZE;
   int pyramid_height = PLATFORM_SIZE / 2;
@@ -218,9 +217,9 @@ void initMaze()
   float zTemp = -8.0f;
   
   
-  for(int n = 0; n < 5; n++) {
+  for(int i = 0; i < 5; i++) {
     for(int j = 0; j < 5; j++) {
-      for(int i = 0; i < 5; i++) {
+      for(int k = 0; k < 5; k++) {
         for (int v = 0; v < 36; v++){
           positions[index] = (vec4){
               base_positions[v].x + xTemp,
@@ -239,6 +238,8 @@ void initMaze()
     xTemp = -8.0f;
     zTemp += 4.0f;
   }
+
+  ////////////////////////////////
 
   // Adding the sun block
   for (int v = 0; v < 36; v++)

@@ -18,6 +18,7 @@
 #define NUM_MAZE_POLES (MAZE_SIZE + 1) * (MAZE_SIZE + 1)
 #define WALL_LENGTH 3
 #define MAZE_WALL_HEIGHT 4
+#define FLOOR_SIZE (WALL_LENGTH * MAZE_SIZE) + MAZE_SIZE + 1
 
 void initMaze();
 
