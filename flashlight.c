@@ -7,6 +7,7 @@
 
 //#include "main.h"
 #include "myLib.h"
+#include "main.h"
 #include <math.h>
 
 
@@ -25,11 +26,13 @@ vec4 light_i_ambient= (vec4){0,0,0,0};
 vec4 light_i_diffuse=(vec4){1,1,1,0};
 vec4 light_i_specular= (vec4){0,0,0,0};
 
-vec4 reflect_i_ambient= (vec4){0,0,0,0}, reflect_i_diffuse = (vec4){0,0,0,0}, reflect_i_specular= (vec4){0,0,0,0};
+vec4 reflect_i_ambient= (vec4){0,0,0,0}, reflect_i_diffuse = (vec4){1,1,1,1}, reflect_i_specular= (vec4){0,0,0,0};
 
 void new_direction(int x,int y){
     light_direction.x = x;
     light_direction.y =y;
+    //light_direction.z = eye.z;
+
 }
 
 void initalize(vec4 direction){
@@ -37,6 +40,5 @@ void initalize(vec4 direction){
     light_direction.w = 0;
     float rad_angle = deg_to_rad(angle);
     float intensity =pow(cos(rad_angle),e);
-
 }
 
