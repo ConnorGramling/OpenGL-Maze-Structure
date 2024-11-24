@@ -8,13 +8,25 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <GL/freeglut_ext.h>
+
 #include "myLib.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+extern GLuint buffer;
+
 extern int num_vertices;
 extern vec4 *positions;
 extern vec2 *tex_coords;
+
+extern vec4 base_positions[36];
+extern vec2 grass_top_tex_coords[6];
+extern vec2 dirt_tex_coords[6];
+extern vec2 grass_tex_coords[6];
+extern vec2 sun_tex_coords[6];
 
 extern float sun_x;
 extern float sun_y; // Positioned 20 units above the center of the island

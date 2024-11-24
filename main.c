@@ -23,7 +23,9 @@
 #include "initShader.h"
 #include "initMaze.h"
 #include "perspFunc.h"
+#include "sun.h"
 
+#include "main.h"
 #include "myLib.h"
 #include <math.h>
 #include <stdbool.h>

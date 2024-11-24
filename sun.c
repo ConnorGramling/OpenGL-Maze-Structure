@@ -10,7 +10,6 @@
 #include "sun.h"
 #include "myLib.h"
 #include "main.h"
-#include "main.h"
 #include <math.h>
 
 void rotateSun(float angle) {
@@ -25,5 +24,19 @@ void rotateSun(float angle) {
     sun_y = new_y;
     sun_z = new_z;
 
-    printf
+    // Update vertex positions for the sun
+    int sun_start_index = num_vertices - 36; // Assuming the last 36 vertices are for the sun
+    for (int v = 0; v < 36; v++) {
+        positions[sun_start_index + v] = (vec4){
+            base_positions[v].x + sun_x,
+            base_positions[v].y + sun_y,
+            base_positions[v].z + sun_z,
+            base_positions[v].w};
+    }
+
+    // Re-upload the updated vertex positions to the GPU
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
+
+    printf("Sun position updated: (%.2f, %.2f, %.2f)\n", sun_x, sun_y, sun_z);
 }
