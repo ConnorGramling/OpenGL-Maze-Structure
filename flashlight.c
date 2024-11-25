@@ -5,7 +5,6 @@
  *      Author: Alli Batell
  */
 
-//#include "main.h"
 #include "myLib.h"
 #include "main.h"
 #include <math.h>
@@ -35,10 +34,13 @@ void new_direction(int x,int y){
 
 }
 
-void initalize(vec4 direction){
+void initialize_flashlight(vec4 direction){
     light_direction = direction;
     light_direction.w = 0;
     float rad_angle = deg_to_rad(angle);
     float intensity =pow(cos(rad_angle),e);
+}
+void update_flashlight(){
+    glUniform4fv(flashlight_position_location, 1, (GLvoid *)&flashlight_position_location);  
 }
 

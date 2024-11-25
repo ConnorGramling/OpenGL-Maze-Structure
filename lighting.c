@@ -69,3 +69,8 @@ void updateLight() {
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * num_vertices, sizeof(vec4) * num_vertices, colors);
 }
+
+
+// END SHADING
+=======
+
