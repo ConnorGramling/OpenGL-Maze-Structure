@@ -134,7 +134,7 @@ vec2 brick_tex_coords[6] = {
 void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
-  int tempNum = 23; //# of walls
+  int tempNum = MAZE_SIZE * MAZE_SIZE * 3; //# of walls
   int maze_vertices = 36 * ((FLOOR_SIZE * FLOOR_SIZE) + (WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * tempNum))));
 
   //printf("\nplatform size : %d\n", PLATFORM_SIZE);
@@ -291,7 +291,61 @@ void initMaze()
     zTemp += (WALL_LENGTH + 1.0f);
   }
 
-  // make walls
+  // make xwalls
+  yTemp = yStart;
+  xTemp = xStart + 1.0f;
+  zTemp = zStart;
+  for(int i = 0; i < MAZE_SIZE + 1; i++) {
+    for(int j = 0; j < MAZE_SIZE; j++) {
+      for(int n = 0; n < WALL_LENGTH; n++) {
+        for(int k = 0; k < WALL_HEIGHT; k++) {
+          for (int v = 0; v < 36; v++){
+            positions[index] = (vec4){
+              base_positions[v].x + xTemp,
+              base_positions[v].y + yTemp,
+              base_positions[v].z + zTemp,
+              base_positions[v].w};
+            tex_coords[index] = brick_tex_coords[v % 6];
+            index++;
+          }
+          yTemp += 1.0f;
+        }
+        yTemp = yStart;
+        xTemp += 1.0f;
+      }
+      xTemp += 1.0f;
+    }
+    xTemp = xStart + 1.0f;
+    zTemp += (WALL_LENGTH + 1.0f);
+  }
+
+  // make zwalls
+  yTemp = yStart;
+  xTemp = xStart;
+  zTemp = zStart + 1.0f;
+  for(int i = 0; i < MAZE_SIZE + 1; i++) {
+    for(int j = 0; j < MAZE_SIZE; j++) {
+      for(int n = 0; n < WALL_LENGTH; n++) {
+        for(int k = 0; k < WALL_HEIGHT; k++) {
+          for (int v = 0; v < 36; v++){
+            positions[index] = (vec4){
+              base_positions[v].x + xTemp,
+              base_positions[v].y + yTemp,
+              base_positions[v].z + zTemp,
+              base_positions[v].w};
+            tex_coords[index] = brick_tex_coords[v % 6];
+            index++;
+          }
+          yTemp += 1.0f;
+        }
+        yTemp = yStart;
+        zTemp += 1.0f;
+      }
+      zTemp += 1.0f;
+    }
+    zTemp = zStart + 1.0f;
+    xTemp += (WALL_LENGTH + 1.0f);
+  }
 
   ////////////////////////////////
 
