@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "stdlib.h": "c",
-    "mylib.h": "c"
+    "mylib.h": "c",
+    "flashlight.h": "c"
   }
 }

@@ -40,6 +40,9 @@ void rotateSunX(float angle)
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
 
+    // Update the light position
+    updateLightPosition();
+
     printf("Sun position updated: (%.2f, %.2f, %.2f)\n", sun_x, sun_y, sun_z);
 }
 
@@ -71,5 +74,23 @@ void rotateSunY(float angle)
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
 
+    // Update the light position
+    updateLightPosition();
+
     printf("Sun position updated: (%.2f, %.2f, %.2f)\n", sun_x, sun_y, sun_z);
+}
+
+void updateLightPosition()
+{
+    // Set light position to the current sun position
+    light_position.x = sun_x;
+    light_position.y = sun_y;
+    light_position.z = sun_z;
+
+    updateLight();
+
+    // Re-upload the updated light position to the GPU
+    glUniform4fv(light_position_location, 1, (GLvoid *)&light_position);
+
+    printf("Light position updated: (%.2f, %.2f, %.2f)\n", light_position.x, light_position.y, light_position.z);
 }
