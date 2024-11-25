@@ -556,6 +556,27 @@ int main(int argc, char **argv) {
     glutIdleFunc(idle);
     glutMainLoop();
 
+    printf("=== Controls Menu ===\n");
+    printf("[H] - Display this menu\n");
+    printf("[L] - Exit the application\n");
+    printf("[1] - Toggle ambient lighting\n");
+    printf("[2] - Toggle diffuse lighting\n");
+    printf("[3] - Toggle specular lighting\n");
+    printf("[T] - Toggle textures on/off\n");
+    printf("[,] - Rotate sun counterclockwise around X-axis\n");
+    printf("[.] - Rotate sun clockwise around X-axis\n");
+    printf("['] - Rotate sun counterclockwise around Y-axis\n");
+    printf("[;] - Rotate sun clockwise around Y-axis\n");
+    printf("[W] - Move forward (in maze mode)\n");
+    printf("[A] - Move left (in maze mode)\n");
+    printf("[S] - Move backward (in maze mode)\n");
+    printf("[D] - Move right (in maze mode)\n");
+    printf("[Q] - Rotate view left (in maze mode)\n");
+    printf("[E] - Rotate view right (in maze mode)\n");
+    printf("[R] - Reset animation\n");
+    printf("[M] - Enter maze mode\n");
+    printf("=====================\n");
+
     free(positions);
     free(tex_coords);
 
