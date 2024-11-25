@@ -100,7 +100,7 @@ void init(void) {
     model_view = lookAt((vec4){0,0, PLATFORM_SIZE,1}, (vec4){0,0,PLATFORM_SIZE+1,1},(vec4) {0,1,0,0});
     zoom_left = -PLATFORM_SIZE/3, zoom_right = PLATFORM_SIZE/3, zoom_top =PLATFORM_SIZE/4, zoom_bottom =-PLATFORM_SIZE/4, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5 ;
     projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    model_view = mat_mult(translate(PLATFORM_SIZE/3,-1,PLATFORM_SIZE/2), model_view);
+    model_view = mat_mult(translate(PLATFORM_SIZE/3,-2,PLATFORM_SIZE/2), model_view);
     in_maze_view =model_view;
     zoom_left = -PLATFORM_SIZE/10, zoom_right = PLATFORM_SIZE/10, zoom_top =2, zoom_bottom =-1, zoom_near = -PLATFORM_SIZE/10, zoom_far = -PLATFORM_SIZE *1.5 ;
     in_maze_projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
