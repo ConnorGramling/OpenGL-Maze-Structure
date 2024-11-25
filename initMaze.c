@@ -107,10 +107,34 @@ vec2 sun_tex_coords[6] = {
     {0.25, 0.75},
     {0.25, 0.5}};
 
+vec2 wood_tex_coords[6] = {
+    {0.75, 0.75},
+    {1.0, 0.5},
+    {0.75, 0.5},
+    {0.75, 0.75},
+    {1.0, 0.75},
+    {1.0, 0.5}};
+
+vec2 stone_tex_coords[6] = {
+    {0.25, 0.5},
+    {0.5, 0.25},
+    {0.25, 0.25},
+    {0.25, 0.5},
+    {0.5, 0.5},
+    {0.5, 0.25}};
+
+vec2 brick_tex_coords[6] = {
+    {0.75, 0.5},
+    {1.0, 0.25},
+    {0.75, 0.25},
+    {0.75, 0.5},
+    {1.0, 0.5},
+    {1.0, 0.25}};
+
 void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
-  int tempNum = 23;
+  int tempNum = 23; //# of walls
   int maze_vertices = 36 * ((FLOOR_SIZE * FLOOR_SIZE) + (WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * tempNum))));
 
   //printf("\nplatform size : %d\n", PLATFORM_SIZE);
@@ -214,30 +238,51 @@ void initMaze()
   }
 
   ////////////////////////////////
-  
-  float yStart = 0.5f;
+  // START MAZE
+
+  float yfloor = 0.5f; //floor height
+  float yStart = 1.5f; //walls and pole height
   float xStart = -(((WALL_LENGTH + 1) * MAZE_SIZE)/2);
   float zStart = -(((WALL_LENGTH + 1) * MAZE_SIZE)/2);
 
   float yTemp = yStart;
   float xTemp = xStart;
   float zTemp = zStart;
+
+  // make floor
+  for(int i = 0; i < FLOOR_SIZE; i++) {
+    for(int j = 0; j < FLOOR_SIZE; j++) {
+      for (int v = 0; v < 36; v++){
+        positions[index] = (vec4){
+            base_positions[v].x + xTemp,
+            base_positions[v].y + yfloor,
+            base_positions[v].z + zTemp,
+            base_positions[v].w};
+        tex_coords[index] = wood_tex_coords[v % 6];
+        index++;
+      }
+      xTemp += 1.0f;
+    }
+    xTemp = xStart;
+    zTemp += 1.0f;
+  }
   
-  
+  // make poles
+  xTemp = xStart;
+  zTemp = zStart;
   for(int i = 0; i < MAZE_SIZE + 1; i++) {
     for(int j = 0; j < MAZE_SIZE + 1; j++) {
       for(int k = 0; k < WALL_HEIGHT; k++) {
         for (int v = 0; v < 36; v++){
           positions[index] = (vec4){
-              base_positions[v].x + xTemp,
-              base_positions[v].y + yTemp,
-              base_positions[v].z + zTemp,
-              base_positions[v].w};
-
-          tex_coords[index] = dirt_tex_coords[v % 6];
+            base_positions[v].x + xTemp,
+            base_positions[v].y + yTemp,
+            base_positions[v].z + zTemp,
+            base_positions[v].w};
+          tex_coords[index] = stone_tex_coords[v % 6];
           index++;
         }
-        yTemp += 0.5f;
+        yTemp += 1.0f;
       }
     yTemp = yStart;
     xTemp += (WALL_LENGTH + 1.0f);
@@ -245,6 +290,8 @@ void initMaze()
     xTemp = xStart;
     zTemp += (WALL_LENGTH + 1.0f);
   }
+
+  // make walls
 
   ////////////////////////////////
 
