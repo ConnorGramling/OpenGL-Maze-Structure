@@ -15,8 +15,4 @@
 
 void updateLight(); 
 
-extern vec4 *ambient_colors;
-extern vec4 *diffuse_colors;
-extern vec4 *specular_colors;
-
 #endif /* LIGHTING_H_ */
