@@ -2,9 +2,7 @@
 
 ## TODO
 
-* Any size maze - 20pts
 * Random maze - 5pts
-* Island match maze size - 5pts
 * Simple collision detection - 5pts
 * Solving from entrance to exit - 10pts
 * Solving from a location to the exit with the shortest path - 15pts
