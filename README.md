@@ -2,6 +2,7 @@
 
 ## TODO
 
+* The height of walls and pillars must appear random - 5pts
 * Random maze - 5pts
 * Simple collision detection - 5pts
 * Solving from entrance to exit - 10pts
