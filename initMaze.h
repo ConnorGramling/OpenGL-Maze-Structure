@@ -12,12 +12,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PLATFORM_SIZE 32
-
-#define MAZE_SIZE 4
+#define MAZE_SIZE 6 //the length/width of the maze in "tiles"
+#define WALL_LENGTH 3 //how many blocks make up the walls
 #define NUM_MAZE_POLES (MAZE_SIZE + 1) * (MAZE_SIZE + 1)
-#define WALL_LENGTH 3
-#define MAZE_WALL_HEIGHT 4
+#define WALL_HEIGHT 4 //how tall are the walls
+#define FLOOR_SIZE (WALL_LENGTH * MAZE_SIZE) + MAZE_SIZE + 1
+
+#define PLATFORM_SIZE (FLOOR_SIZE + 4)
 
 void initMaze();
 
