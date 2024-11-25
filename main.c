@@ -38,6 +38,7 @@ GLuint buffer;
 GLuint light_position_location;
 GLuint flashlight_position_location;
 GLuint use_texture_location;
+GLuint ambient_on_location, diffuse_on_location, specular_on_location;
 int use_texture = 0;
 
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
@@ -95,7 +96,8 @@ void init(void) {
     ambient_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
     diffuse_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
     specular_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
-
+    
+    initializeBaseColors();
     updateLight();
 
     //maze entrance test, don't delete or move
@@ -183,6 +185,15 @@ void init(void) {
     light_position_location = glGetUniformLocation(program, "light_position");
     glUniform4fv(light_position_location, 1, (GLvoid *) &light_position);
 
+    ambient_on_location = glGetUniformLocation(program, "ambient_on");
+    diffuse_on_location = glGetUniformLocation(program, "diffuse_on");
+    specular_on_location = glGetUniformLocation(program, "specular_on");
+
+    glUniform1i(ambient_on_location, ambient_on ? 1 : 0);
+    glUniform1i(diffuse_on_location, diffuse_on ? 1 : 0);
+    glUniform1i(specular_on_location, specular_on ? 1 : 0);
+
+
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -211,6 +222,22 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         rotateSunY(-45.0f);
     } else if (key == ';') { // Rotate sun clockwise around Y-axis
         rotateSunY(45.0f);
+    } 
+    if (key == '1') {
+        ambient_on = !ambient_on;
+        printf("Ambient lighting %s\n", ambient_on ? "enabled" : "disabled");
+        updateLight();
+        glutPostRedisplay();
+    } else if (key == '2') {
+        diffuse_on = !diffuse_on;
+        printf("Diffuse lighting %s\n", diffuse_on ? "enabled" : "disabled");
+        updateLight();
+        glutPostRedisplay();
+    } else if (key == '3') {
+        specular_on = !specular_on;
+        printf("Specular lighting %s\n", specular_on ? "enabled" : "disabled");
+        updateLight();
+        glutPostRedisplay();
     }
     if (key == 'w'){
         if (in_maze){
@@ -550,6 +577,27 @@ int main(int argc, char **argv) {
     glutMotionFunc(motion);
     glutIdleFunc(idle);
     glutMainLoop();
+
+    printf("=== Controls Menu ===\n");
+    printf("[H] - Display this menu\n");
+    printf("[L] - Exit the application\n");
+    printf("[1] - Toggle ambient lighting\n");
+    printf("[2] - Toggle diffuse lighting\n");
+    printf("[3] - Toggle specular lighting\n");
+    printf("[T] - Toggle textures on/off\n");
+    printf("[,] - Rotate sun counterclockwise around X-axis\n");
+    printf("[.] - Rotate sun clockwise around X-axis\n");
+    printf("['] - Rotate sun counterclockwise around Y-axis\n");
+    printf("[;] - Rotate sun clockwise around Y-axis\n");
+    printf("[W] - Move forward (in maze mode)\n");
+    printf("[A] - Move left (in maze mode)\n");
+    printf("[S] - Move backward (in maze mode)\n");
+    printf("[D] - Move right (in maze mode)\n");
+    printf("[Q] - Rotate view left (in maze mode)\n");
+    printf("[E] - Rotate view right (in maze mode)\n");
+    printf("[R] - Reset animation\n");
+    printf("[M] - Enter maze mode\n");
+    printf("=====================\n");
 
     free(positions);
     free(tex_coords);
