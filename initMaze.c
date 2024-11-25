@@ -206,8 +206,6 @@ void initMaze()
   int tempNum = MAZE_SIZE * MAZE_SIZE * 3; //# of walls
   int maze_vertices = 36 * ((FLOOR_SIZE * FLOOR_SIZE) + (WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * tempNum))));
 
-  //printf("\nplatform size : %d\n", PLATFORM_SIZE);
-
   int pyramid_base = PLATFORM_SIZE;
   int pyramid_height = PLATFORM_SIZE / 2;
 
@@ -392,10 +390,10 @@ for (int i = 0; i < MAZE_SIZE + 1; i++) {
         for(int k = 0; k < WALL_HEIGHT; k++) {
           for (int v = 0; v < 36; v++){
             if(i == 0 && j == MAZE_SIZE - 1) {
-              break;
+              break; //entrance
             } 
             else if (i == MAZE_SIZE && j == 0) {
-              break;
+              break; //exit
             }
             else {
               positions[index] = (vec4){
