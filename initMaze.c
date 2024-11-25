@@ -24,6 +24,72 @@ float sun_y = 20.0f; // Positioned 20 units above the center of the island
 float sun_z = 0.0f;
 float rotation_angle = 0.0f; // Current rotation angle in degrees
 
+int randNumExc(int min, int max) {
+  return rand() % ((max + 1) - (min - 1) + 1) + min + 1;
+}
+
+int randNumInc(int min, int max) {
+  return rand() % (max - min + 1) + min;
+}
+
+struct chamber {
+  int north;
+  int east;
+  int south;
+  int west;
+};
+
+//chamber maze[MAZE_SIZE][MAZE_SIZE] = {0};
+
+/*
+void gen_maze(int begin_row, int end_row, int begin_column, int end_column) {
+  int r = randNumExc(begin_row, end_row);
+  int c = randNumExc(begin_column, end_column);
+
+  for(int i = 0; i < ; i++) {
+    maze[r][i].south = 1;
+    maze[r+1][i].north = 1;
+  }
+
+  for(int i = 0; i < ; i++) {
+    maze[i][c].east = 1;
+    maze[i][c+1].west = 1;
+  }
+
+  int pickwalls = rand() % 4; //0:n, 1:e, 2:s, 3:w
+  int picktile;
+
+  // North wall
+  if(pickwalls != 0) {
+    picktile = randNumInc(begin_row, r);
+    maze[picktile][c].east = 0;
+    maze[picktile][c+1].west = 0;
+  }
+
+  // South wall
+  if(pickwalls != 2) {
+    picktile = randNumInc(r+1, end_row);
+    maze[picktile][c].east = 0;
+    maze[picktile][c+1].west = 0;
+  }
+
+  //East wall
+  if(pickwalls != 1) {
+    picktile = randNumInc(c+1, end_column);
+    maze[picktile][c].north = 0;
+    maze[picktile][c+1].south = 0;
+  }
+
+  //West wall
+  if(pickwalls != 3) {
+    picktile = randNumInc(begin_column, c);
+    maze[picktile][c].north = 0;
+    maze[picktile][c+1].south = 0;
+  }
+
+}
+*/
+
 // Postion for block shape
 vec4 base_positions[36] = {
     // Front face
@@ -134,6 +200,9 @@ vec2 brick_tex_coords[6] = {
 void initMaze()
 {
   srand(time(NULL)); // Seed for randomness
+
+  //gen_maze(0, MAZE_SIZE - 1, 0, MAZE_SIZE - 1);
+
   int tempNum = MAZE_SIZE * MAZE_SIZE * 3; //# of walls
   int maze_vertices = 36 * ((FLOOR_SIZE * FLOOR_SIZE) + (WALL_HEIGHT * (NUM_MAZE_POLES + (WALL_LENGTH * tempNum))));
 
@@ -322,13 +391,21 @@ for (int i = 0; i < MAZE_SIZE + 1; i++) {
       for(int n = 0; n < WALL_LENGTH; n++) {
         for(int k = 0; k < WALL_HEIGHT; k++) {
           for (int v = 0; v < 36; v++){
-            positions[index] = (vec4){
+            if(i == 0 && j == MAZE_SIZE - 1) {
+              break;
+            } 
+            else if (i == MAZE_SIZE && j == 0) {
+              break;
+            }
+            else {
+              positions[index] = (vec4){
               base_positions[v].x + xTemp,
               base_positions[v].y + yTemp,
               base_positions[v].z + zTemp,
               base_positions[v].w};
-            tex_coords[index] = brick_tex_coords[v % 6];
-            index++;
+              tex_coords[index] = brick_tex_coords[v % 6];
+              index++;
+            }
           }
           yTemp += 1.0f;
         }
