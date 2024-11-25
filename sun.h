@@ -15,5 +15,6 @@
 
 void rotateSunX(float angle);
 void rotateSunY(float angle);
+void updateLightPosition();
 
 #endif /* SUN_H_ */

@@ -10,7 +10,7 @@
 
 #include "myLib.h"
 
-vec4 flashlight_pos;
+extern vec4 flashlight_pos;
 
 void new_direction(int,int);
 void initialize(vec4);

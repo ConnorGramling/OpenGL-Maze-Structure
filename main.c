@@ -25,6 +25,7 @@
 #include "perspFunc.h"
 #include "sun.h"
 #include "flashlight.h"
+#include "lighting.h"
 
 #include "main.h"
 #include "myLib.h"
@@ -33,6 +34,9 @@
 #include <stdio.h>
 
 GLuint buffer;
+GLuint light_position_location;
+GLuint use_texture_location;
+int use_texture = 0;
 
 mat4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location;
@@ -42,11 +46,9 @@ float previous_x;
 float previous_y;
 bool left_press = true;
 
-vec4 light_position = {0, 20, 0, 0};
+vec4 light_position = {0, 20, 0, 1};
 
 int quadrant= 1;
-
-vec4 eye, at, up;
 
 bool in_maze= false;
 
@@ -80,62 +82,27 @@ mat4 model_view = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 GLuint projection_location;
 mat4 projection = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
+vec4 *ambient_colors;
+vec4 *diffuse_colors;
+vec4 *specular_colors;
+
 void init(void) {
     
     initMaze();
 
-    //START SHADING
-    
-    // Ambient
-    vec4 *ambient_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
+    ambient_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
+    diffuse_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
+    specular_colors = (vec4 *)malloc(sizeof(vec4) * num_vertices);
 
-    for(int i = 0; i < num_vertices; i++) {
-        ambient_colors[i] = scal_v_mult(0.3, colors[i]);
-    }
-    
-    // Diffuse
-    vec4 light_position = {4, 4, 4, 1};
-
-    vec4 *diffuse_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
-    
-    for(int i = 0; i < num_vertices; i++) {
-        vec4 l = norm_v(sub_vv(light_position, positions[i]));
-        vec4 n = normals[i];
-        float l_dot_n = dot_prod(l, n);
-        if(l_dot_n < 0)
-            l_dot_n = 0;
-        diffuse_colors[i] = scal_v_mult(l_dot_n, colors[i]);
-    }
-
-    // Specular
-    vec4 *specular_colors = (vec4 *) malloc(sizeof(vec4) * num_vertices);
-
-    for(int i = 0; i < num_vertices; i++) {
-        vec4 l = norm_v(sub_vv(light_position, positions[i]));
-        vec4 v = norm_v(sub_vv(eye, positions[i]));
-        vec4 h = norm_v(add_vv(l, v));
-        vec4 n = normals[i];
-
-        float h_dot_n = dot_prod(h, n);
-        if(h_dot_n < 0)
-            h_dot_n = 0;
-
-        specular_colors[i] = scal_v_mult(pow(h_dot_n, 50), (vec4) {1, 1, 1, 1});
-    }
-    
-    for(int i = 0; i < num_vertices; i++) {
-        colors[i] = add_vv(specular_colors[i], add_vv(diffuse_colors[i], ambient_colors[i]));
-    }
-
-    // END SHADING
+    updateLight();
 
     //maze entrance test, don't delete or move
     model_view = lookAt((vec4){0,0, PLATFORM_SIZE,1}, (vec4){0,0,PLATFORM_SIZE+1,1},(vec4) {0,1,0,0});
     zoom_left = -PLATFORM_SIZE/3, zoom_right = PLATFORM_SIZE/3, zoom_top =PLATFORM_SIZE/4, zoom_bottom =-PLATFORM_SIZE/4, zoom_near = -PLATFORM_SIZE/4, zoom_far = -PLATFORM_SIZE *1.5 ;
     projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
-    model_view = mat_mult(translate(PLATFORM_SIZE/4,-1,-PLATFORM_SIZE/4), model_view);
+    model_view = mat_mult(translate(PLATFORM_SIZE/3,-1,PLATFORM_SIZE/2), model_view);
     in_maze_view =model_view;
-    zoom_left = -PLATFORM_SIZE/10, zoom_right = PLATFORM_SIZE/10, zoom_top =2, zoom_bottom =-1, zoom_near = -PLATFORM_SIZE/8, zoom_far = -PLATFORM_SIZE *1.5 ;
+    zoom_left = -PLATFORM_SIZE/10, zoom_right = PLATFORM_SIZE/10, zoom_top =2, zoom_bottom =-1, zoom_near = -PLATFORM_SIZE/10, zoom_far = -PLATFORM_SIZE *1.5 ;
     in_maze_projection = frustrum(zoom_left, zoom_right, zoom_bottom, zoom_top, zoom_near, zoom_far);
 
     //correct set up
@@ -179,28 +146,39 @@ void init(void) {
     //GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4) + num_vertices * sizeof(vec2), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(vec4), positions);
-    glBufferSubData(GL_ARRAY_BUFFER, num_vertices * sizeof(vec4), num_vertices * sizeof(vec2), tex_coords);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * 3 * num_vertices + sizeof(vec2) * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec4) * num_vertices, positions);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * num_vertices, sizeof(vec4) * num_vertices, colors);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * 2 * num_vertices, sizeof(vec4) * num_vertices, normals);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * 3 * num_vertices, sizeof(vec2) * num_vertices, tex_coords);
 
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
-    glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
+    glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) 0);
+
+    GLuint vColor = glGetAttribLocation(program, "vColor");
+    glEnableVertexAttribArray(vColor);
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vec4) * num_vertices));
+
+    GLuint vNormal = glGetAttribLocation(program, "vNormal");
+    glEnableVertexAttribArray(vNormal);
+    glVertexAttribPointer(vNormal, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vec4) * 2 * num_vertices));
 
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
-glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(num_vertices * sizeof(vec4)));
+    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vec4) * 3 * num_vertices));
 
     ctm_location = glGetUniformLocation(program, "ctm");
     model_view_location = glGetUniformLocation(program, "model_view");
     projection_location = glGetUniformLocation(program, "projection");
-
+    
     GLuint texture_location = glGetUniformLocation(program, "texture");
     glUniform1i(texture_location, 0);
 
-    //use texture?
+    use_texture_location = glGetUniformLocation(program, "use_texture");
+    glUniform1i(use_texture_location, use_texture);
 
-    GLuint light_position_location = glGetUniformLocation(program, "light_position");
+    light_position_location = glGetUniformLocation(program, "light_position");
     glUniform4fv(light_position_location, 1, (GLvoid *) &light_position);
 
     glEnable(GL_CULL_FACE);
@@ -281,6 +259,11 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         current_step =0;
         max_steps = 100;
         printf("ha\n");
+    } 
+    if(key == 't') {
+	use_texture ^= 0x1;
+	glUniform1i(use_texture_location, use_texture);
+	glutPostRedisplay();
     }
 
     glutPostRedisplay();
