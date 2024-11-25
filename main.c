@@ -26,6 +26,7 @@
 #include "sun.h"
 #include "flashlight.h"
 #include "lighting.h"
+#include "mazeSolver.h"
 
 #include "main.h"
 #include "myLib.h"
@@ -35,6 +36,7 @@
 
 GLuint buffer;
 GLuint light_position_location;
+GLuint flashlight_position_location;
 GLuint use_texture_location;
 int use_texture = 0;
 
@@ -265,6 +267,9 @@ void keyboard(unsigned char key, int mousex, int mousey) {
 	glUniform1i(use_texture_location, use_texture);
 	glutPostRedisplay();
     }
+    if(key == 'f'){
+        //initialize_flashlight();
+    }
 
     glutPostRedisplay();
 }
@@ -278,7 +283,7 @@ void mouse(int button, int state, int x, int y) {
         if (!in_maze)
             previous_ctm= ctm;
         if (in_maze)
-            new_direction(previous_x, previous_y);
+            new_direction(previous_x, -previous_y);
     }
     if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         left_press = false;
@@ -341,50 +346,67 @@ void idle(void){
         if (currentState== NONE);
             
         else if(currentState == WALK_FORWARDS) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
-            
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             }
         }
         else if(currentState == WALK_BACKWARDS) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             
             }
         }
         else if(currentState == TURN_LEFT) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             
             }
         }
         else if(currentState == TURN_RIGHT) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             
             }
         }
         else if(currentState == WALK_LEFT) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             
             }
         }
         else if(currentState == WALK_RIGHT) {
+            float alpha;
             if(current_step == max_steps){
                 
             }
             else{
+                alpha = (float) current_step/ max_steps;
+                current_step++;
             
             }
         }
@@ -441,7 +463,7 @@ void idle(void){
 
             }
         }
-         else if(currentState == ENTER) {
+        else if(currentState == ENTER) {
             float alpha;
             if(current_step == max_steps){
                 isAnimating = -1;

@@ -55,4 +55,5 @@ void updateLight()
   print_v4(diffuse_colors[1]);
   print_v4(ambient_colors[1]);
 }
+
 // END SHADING

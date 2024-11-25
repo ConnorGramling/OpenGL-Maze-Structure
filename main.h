@@ -26,6 +26,7 @@
 
 extern GLuint buffer;
 extern GLuint light_position_location;
+extern GLuint flashlight_position_location;
 
 extern int num_vertices;
 extern vec4 *positions;

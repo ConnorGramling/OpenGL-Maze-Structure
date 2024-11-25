@@ -13,6 +13,7 @@
 extern vec4 flashlight_pos;
 
 void new_direction(int,int);
-void initialize(vec4);
+void initialize_flashlight(vec4);
+void update_flashlight();
 
 #endif 
