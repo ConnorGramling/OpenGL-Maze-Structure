@@ -250,46 +250,68 @@ void initMaze()
   float zTemp = zStart;
 
   // make floor
-  for(int i = 0; i < FLOOR_SIZE; i++) {
-    for(int j = 0; j < FLOOR_SIZE; j++) {
-      for (int v = 0; v < 36; v++){
-        positions[index] = (vec4){
-            base_positions[v].x + xTemp,
-            base_positions[v].y + yfloor,
-            base_positions[v].z + zTemp,
-            base_positions[v].w};
-        tex_coords[index] = wood_tex_coords[v % 6];
-        index++;
-      }
-      xTemp += 1.0f;
+for (int i = 0; i < FLOOR_SIZE; i++) {
+    for (int j = 0; j < FLOOR_SIZE; j++) {
+        for (int v = 0; v < 36; v++) {
+            positions[index] = (vec4){
+                base_positions[v].x + xTemp,
+                base_positions[v].y + yfloor,
+                base_positions[v].z + zTemp,
+                base_positions[v].w};
+            tex_coords[index] = wood_tex_coords[v % 6];
+
+            // Set normals (assuming floor is flat, normal pointing up)
+            normals[index] = (vec4){0.0, 1.0, 0.0, 0.0};
+
+            // Set colors (alternate color pattern for the floor)
+            colors[index] = (vec4){
+                (float)i / FLOOR_SIZE,           // Red based on row index
+                (float)j / FLOOR_SIZE,           // Green based on column index
+                1.0f,                            // Blue is constant for the floor
+                1.0f};                           // Alpha is fully opaque
+
+            index++;
+        }
+        xTemp += 1.0f;
     }
     xTemp = xStart;
     zTemp += 1.0f;
-  }
-  
-  // make poles
-  xTemp = xStart;
-  zTemp = zStart;
-  for(int i = 0; i < MAZE_SIZE + 1; i++) {
-    for(int j = 0; j < MAZE_SIZE + 1; j++) {
-      for(int k = 0; k < WALL_HEIGHT; k++) {
-        for (int v = 0; v < 36; v++){
-          positions[index] = (vec4){
-            base_positions[v].x + xTemp,
-            base_positions[v].y + yTemp,
-            base_positions[v].z + zTemp,
-            base_positions[v].w};
-          tex_coords[index] = stone_tex_coords[v % 6];
-          index++;
+}
+
+// make poles
+xTemp = xStart;
+zTemp = zStart;
+for (int i = 0; i < MAZE_SIZE + 1; i++) {
+    for (int j = 0; j < MAZE_SIZE + 1; j++) {
+        for (int k = 0; k < WALL_HEIGHT; k++) {
+            for (int v = 0; v < 36; v++) {
+                positions[index] = (vec4){
+                    base_positions[v].x + xTemp,
+                    base_positions[v].y + yTemp,
+                    base_positions[v].z + zTemp,
+                    base_positions[v].w};
+                tex_coords[index] = stone_tex_coords[v % 6];
+
+                // Set normals (poles are vertical, normal pointing up or down)
+                normals[index] = (vec4){0.0, 1.0, 0.0, 0.0}; // Normal pointing upwards
+
+                // Set colors (changing color pattern for each pole)
+                colors[index] = (vec4){
+                    (float)i / MAZE_SIZE,            // Red based on row index
+                    (float)j / MAZE_SIZE,            // Green based on column index
+                    (float)k / WALL_HEIGHT,          // Blue based on height of the pole
+                    1.0f};                           // Alpha is fully opaque
+
+                index++;
+            }
+            yTemp += 1.0f;
         }
-        yTemp += 1.0f;
-      }
-    yTemp = yStart;
-    xTemp += (WALL_LENGTH + 1.0f);
+        yTemp = yStart;
+        xTemp += (WALL_LENGTH + 1.0f);
     }
     xTemp = xStart;
     zTemp += (WALL_LENGTH + 1.0f);
-  }
+}
 
   // make xwalls
   yTemp = yStart;
