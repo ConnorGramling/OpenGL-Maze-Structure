@@ -285,7 +285,6 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         currentState = ENTER;
         current_step =0;
         max_steps = 100;
-        printf("ha\n");
     } 
     if(key == 't') {
 	use_texture ^= 0x1;
@@ -548,14 +547,6 @@ int main(int argc, char **argv) {
 #ifndef __APPLE__
     glewInit();
 #endif
-    init();
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
-    glutMouseFunc(mouse);
-    glutMotionFunc(motion);
-    glutIdleFunc(idle);
-    glutMainLoop();
-
     printf("=== Controls Menu ===\n");
     printf("[H] - Display this menu\n");
     printf("[L] - Exit the application\n");
@@ -576,6 +567,14 @@ int main(int argc, char **argv) {
     printf("[R] - Reset animation\n");
     printf("[M] - Enter maze mode\n");
     printf("=====================\n");
+
+    init();
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
+    glutIdleFunc(idle);
+    glutMainLoop();
 
     free(positions);
     free(tex_coords);

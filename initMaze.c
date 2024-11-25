@@ -383,68 +383,88 @@ for (int i = 0; i < MAZE_SIZE + 1; i++) {
 }
 
   // make xwalls
-  yTemp = yStart;
-  xTemp = xStart + 1.0f;
-  zTemp = zStart;
-  for(int i = 0; i < MAZE_SIZE + 1; i++) {
-    for(int j = 0; j < MAZE_SIZE; j++) {
-      for(int n = 0; n < WALL_LENGTH; n++) {
-        for(int k = 0; k < WALL_HEIGHT; k++) {
-          for (int v = 0; v < 36; v++){
-            if(i == 0 && j == MAZE_SIZE - 1) {
-              break;
-            } 
-            else if (i == MAZE_SIZE && j == 0) {
-              break;
+yTemp = yStart;
+xTemp = xStart + 1.0f;
+zTemp = zStart;
+for (int i = 0; i < MAZE_SIZE + 1; i++) {
+    for (int j = 0; j < MAZE_SIZE; j++) {
+        for (int n = 0; n < WALL_LENGTH; n++) {
+            for (int k = 0; k < WALL_HEIGHT; k++) {
+                for (int v = 0; v < 36; v++) {
+                    if ((i == 0 && j == MAZE_SIZE - 1) || (i == MAZE_SIZE && j == 0)) {
+                        break;
+                    } else {
+                        positions[index] = (vec4){
+                            base_positions[v].x + xTemp,
+                            base_positions[v].y + yTemp,
+                            base_positions[v].z + zTemp,
+                            base_positions[v].w};
+                        tex_coords[index] = brick_tex_coords[v % 6];
+
+                        // Set normals (walls facing along Z direction)
+                        normals[index] = (vec4){0.0, 0.0, -1.0, 0.0}; // Example for one direction
+
+                        // Set colors (varying colors for visual distinction)
+                        colors[index] = (vec4){
+                            (float)j / MAZE_SIZE,    // Red based on column index
+                            (float)n / WALL_LENGTH,  // Green based on wall segment
+                            1.0f,                    // Blue constant for xwalls
+                            1.0f};                   // Alpha fully opaque
+
+                        index++;
+                    }
+                }
+                yTemp += 1.0f;
             }
-            else {
-              positions[index] = (vec4){
-              base_positions[v].x + xTemp,
-              base_positions[v].y + yTemp,
-              base_positions[v].z + zTemp,
-              base_positions[v].w};
-              tex_coords[index] = brick_tex_coords[v % 6];
-              index++;
-            }
-          }
-          yTemp += 1.0f;
+            yTemp = yStart;
+            xTemp += 1.0f;
         }
-        yTemp = yStart;
         xTemp += 1.0f;
-      }
-      xTemp += 1.0f;
     }
     xTemp = xStart + 1.0f;
     zTemp += (WALL_LENGTH + 1.0f);
-  }
+}
+
 
   // make zwalls
-  yTemp = yStart;
-  xTemp = xStart;
-  zTemp = zStart + 1.0f;
-  for(int i = 0; i < MAZE_SIZE + 1; i++) {
-    for(int j = 0; j < MAZE_SIZE; j++) {
-      for(int n = 0; n < WALL_LENGTH; n++) {
-        for(int k = 0; k < WALL_HEIGHT; k++) {
-          for (int v = 0; v < 36; v++){
-            positions[index] = (vec4){
-              base_positions[v].x + xTemp,
-              base_positions[v].y + yTemp,
-              base_positions[v].z + zTemp,
-              base_positions[v].w};
-            tex_coords[index] = brick_tex_coords[v % 6];
-            index++;
-          }
-          yTemp += 1.0f;
+yTemp = yStart;
+xTemp = xStart;
+zTemp = zStart + 1.0f;
+for (int i = 0; i < MAZE_SIZE + 1; i++) {
+    for (int j = 0; j < MAZE_SIZE; j++) {
+        for (int n = 0; n < WALL_LENGTH; n++) {
+            for (int k = 0; k < WALL_HEIGHT; k++) {
+                for (int v = 0; v < 36; v++) {
+                    positions[index] = (vec4){
+                        base_positions[v].x + xTemp,
+                        base_positions[v].y + yTemp,
+                        base_positions[v].z + zTemp,
+                        base_positions[v].w};
+                    tex_coords[index] = brick_tex_coords[v % 6];
+
+                    // Set normals (walls facing along X direction)
+                    normals[index] = (vec4){-1.0, 0.0, 0.0, 0.0}; // Example for one direction
+
+                    // Set colors (varying colors for visual distinction)
+                    colors[index] = (vec4){
+                        (float)i / MAZE_SIZE,       // Red based on row index
+                        (float)n / WALL_LENGTH,     // Green based on wall segment
+                        0.5f,                       // Blue constant for zwalls
+                        1.0f};                      // Alpha fully opaque
+
+                    index++;
+                }
+                yTemp += 1.0f;
+            }
+            yTemp = yStart;
+            zTemp += 1.0f;
         }
-        yTemp = yStart;
         zTemp += 1.0f;
-      }
-      zTemp += 1.0f;
     }
     zTemp = zStart + 1.0f;
     xTemp += (WALL_LENGTH + 1.0f);
-  }
+}
+
 
   ////////////////////////////////
 
