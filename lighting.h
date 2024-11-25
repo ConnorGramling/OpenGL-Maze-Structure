@@ -12,7 +12,13 @@
 #include "myLib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-void updateLight(); 
+void updateLight();
+void initializeBaseColors();
+
+extern bool ambient_on;
+extern bool diffuse_on;
+extern bool specular_on;
 
 #endif /* LIGHTING_H_ */

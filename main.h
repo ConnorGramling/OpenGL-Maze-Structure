@@ -26,6 +26,8 @@
 
 extern GLuint buffer;
 extern GLuint light_position_location;
+extern GLuint use_texture_location;
+extern GLuint ambient_on_location, diffuse_on_location, specular_on_location;
 
 extern int num_vertices;
 extern vec4 *positions;
